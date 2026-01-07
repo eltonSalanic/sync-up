@@ -156,4 +156,8 @@
   h6 {
     @apply text-base font-medium;
   }
+
+  p {
+    @apply text-lg;
+  }
 }
