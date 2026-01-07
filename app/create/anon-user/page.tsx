@@ -1,7 +1,7 @@
 export default function CreateEventPage() {
     return (
         <div>
-            <h1>Create Event</h1>
+            <h1>Create Anon User</h1>
         </div>
     )
 }
