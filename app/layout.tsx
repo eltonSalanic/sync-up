@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${poppins.variable} ${dmSans.variable} ${robotoMono.variable} antialiased bg-background`}
+        className={`flex flex-col min-h-screen ${poppins.variable} ${dmSans.variable} ${robotoMono.variable} antialiased bg-background`}
       >
         <ThemeProvider
             attribute="class"
