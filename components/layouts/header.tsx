@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full h-25 border-b bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-50 w-full h-22 border-b bg-primary text-primary-foreground">
       <div className="w-full h-full flex items-center justify-between px-4">
         <Link 
           href="/" 
