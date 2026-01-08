@@ -8,4 +8,4 @@ export const anonUserSchema = z.object({
   timezone: z.enum(Timezones, "Must be a valid timezone"),
 });
 
-export type AnonUser = z.infer<typeof anonUserSchema>;
+export type CreateAnonUser = z.infer<typeof anonUserSchema>;

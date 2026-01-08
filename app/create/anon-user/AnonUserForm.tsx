@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
-import { anonUserSchema, AnonUser } from "@/app/dtos/user.dto";
+import { anonUserSchema, CreateAnonUser } from "@/app/dtos/user.dto";
 
 import { Timezones } from "@/app/types/enums";
 
@@ -33,7 +33,7 @@ export default function AnonUserForm() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<AnonUser>({
+  } = useForm<CreateAnonUser>({
     resolver: zodResolver(anonUserSchema),
     defaultValues: {
       fName: "",
