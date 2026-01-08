@@ -2,8 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
-import * as z from "zod";
-import { Constants } from "@/database.types";
+import { anonUserSchema, AnonUser } from "@/app/dtos/user.dto";
+
+import { Timezones } from "@/app/types/enums";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,15 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const timezoneOptions = Constants.public.Enums.tz;
 
-const schema = z.object({
-  fName: z.string().min(1, "First name is required"),
-  lName: z.string().min(1, "Last name is required"),
-  timezone: z.enum(timezoneOptions, "Some error message"),
-});
-
-type FormFields = z.infer<typeof schema>;
 
 export default function AnonUserForm() {
   //formState: {errors, isSubmitting}
@@ -40,8 +33,8 @@ export default function AnonUserForm() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormFields>({
-    resolver: zodResolver(schema),
+  } = useForm<AnonUser>({
+    resolver: zodResolver(anonUserSchema),
     defaultValues: {
       fName: "",
       lName: "",
@@ -78,7 +71,7 @@ export default function AnonUserForm() {
                       <SelectValue placeholder="Timezone" />
                     </SelectTrigger>
                     <SelectContent>
-                      {timezoneOptions.map((timezone) => {
+                      {Timezones.map((timezone) => {
                         return (
                           <SelectItem key={timezone} value={timezone}>
                             {timezone.split("_").join(" ")}
