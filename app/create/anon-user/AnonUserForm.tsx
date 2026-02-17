@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
-import { anonUserSchema, CreateAnonUser } from "@/app/dtos/user.dto";
+import { AnonUserSchema, CreateAnonUser } from "@/app/dtos/user.dto";
+import { useState } from "react";
 
 import { Timezones } from "@/app/types/enums";
 
@@ -23,24 +24,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { createAnonUser } from "@/app/actions/users";
 
 
 export default function AnonUserForm() {
-  //formState: {errors, isSubmitting}
+  const [serverError, setServerError] = useState<string | null>(null);
+
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<CreateAnonUser>({
-    resolver: zodResolver(anonUserSchema),
+    resolver: zodResolver(AnonUserSchema),
     defaultValues: {
       fName: "",
       lName: "",
       timezone: "" as any,
     },
   });
+
+  const onSubmit = async (data: CreateAnonUser) => {
+    setServerError(null);
+    
+    const result = await createAnonUser(data);
+    
+    if (!result.success) {
+      setServerError(result.error || "An error occurred");
+      return;
+    }
+  };
 
   return (
     <Card className="w-full">
@@ -50,6 +63,11 @@ export default function AnonUserForm() {
       <CardContent>
         <form>
           <FieldGroup>
+            {serverError && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-4">
+                {serverError}
+              </div>
+            )}
             <Field>
               <FieldLabel>First Name</FieldLabel>
               <Input {...register("fName")} placeholder="John" />
@@ -74,7 +92,7 @@ export default function AnonUserForm() {
                       {Timezones.map((timezone) => {
                         return (
                           <SelectItem key={timezone} value={timezone}>
-                            {timezone.split("_").join(" ")}
+                            {timezone.split("_").join(" ") /* Removes underscores */}
                           </SelectItem>
                         );
                       })}
@@ -91,9 +109,9 @@ export default function AnonUserForm() {
       </CardContent>
       <CardFooter>
         <Field>
-          <Button type="submit" onClick={handleSubmit((data) => {
-              console.log(data);
-            })}>Submit</Button>
+          <Button type="submit" disabled={isSubmitting} onClick={handleSubmit(onSubmit)}>
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
         </Field>
       </CardFooter>
     </Card>
