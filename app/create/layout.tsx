@@ -6,7 +6,9 @@ export default function CreateLayout({
   return (
     <main className="flex-1 w-screen flex flex-col items-center p-10">
       <h1 className="text-secondary-foreground pb-10">Create Event</h1>
-      {children}
+      <div className="w-full md:w-[80%] lg:w-[60%]">
+        {children}
+      </div>
     </main>
   )
 }
