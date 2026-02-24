@@ -2,16 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  useForm,
-  Controller,
-  set,
-  useFieldArray,
-  useController,
+  useForm, useFieldArray
 } from "react-hook-form";
 import { CreateEventSchema, CreateEvent } from "@/app/dtos/event.dto";
 import { useState } from "react";
 
-import { Timezones } from "@/app/types/enums";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -29,13 +24,6 @@ import {
   FieldGroup,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function EventDetailsForm() {
