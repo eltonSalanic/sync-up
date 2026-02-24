@@ -100,10 +100,6 @@ export default function EventDetailsForm() {
     sortFieldDates();
   }
 
-  function handleTimeChange(event: React.ChangeEvent<HTMLInputElement>) {
-    console.log(event.target.value);
-  }
-
   return (
     <Card className="w-full">
       <CardHeader>
