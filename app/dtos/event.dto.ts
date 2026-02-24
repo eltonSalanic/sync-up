@@ -8,8 +8,8 @@ export const CreateEventSchema = z.object({
   // You can infer date through the timestamp
   availableDatesWithTimes: z.array(z.object({
     date: z.date(),
-    startTime: z.iso.datetime(),
-    endTime: z.iso.datetime(),
+    startTime: z.iso.time(),
+    endTime: z.iso.time(),
   })),
 });
 
