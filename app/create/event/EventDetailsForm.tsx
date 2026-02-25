@@ -1,12 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  useForm, useFieldArray
-} from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { CreateEventSchema, CreateEvent } from "@/app/dtos/event.dto";
 import { useState } from "react";
-
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -128,38 +125,60 @@ export default function EventDetailsForm() {
                 <FieldError>{errors.maxPeople?.message}</FieldError>
               )}
             </Field>
-            <div className="flex gap-2">
-              <Calendar
-                mode="multiple"
-                required={false}
-                selected={selectedDates}
-                onSelect={handleSelectDate}
-                className="rounded-lg border self-center"
-              />
-              <div className="flex flex-col gap-2">
-                {fields.map((field, index) => {
-                  return (
-                    <div key={field.id}>
-                      <h5>{field.date.toLocaleDateString()}</h5>
-                      <FieldLabel>Start Time</FieldLabel>
-                      <Input
-                        type="time"
-                        {...register(
-                          `availableDatesWithTimes.${index}.startTime`,
-                        )}
-                      />
-                      <FieldLabel>End Time</FieldLabel>
-                      <Input
-                        type="time"
-                        {...register(
-                          `availableDatesWithTimes.${index}.endTime`,
-                        )}
-                      />
+
+            {/* Date and Time Select */}
+            <Field>
+              <FieldLabel>Select Dates</FieldLabel>
+              <div className="flex md:flex-row md:items-start">
+                <div className="flex-1 min-w-0 md:w-auto">
+                  <Calendar
+                    mode="multiple"
+                    required={false}
+                    selected={selectedDates}
+                    onSelect={handleSelectDate}
+                    className="rounded-lg border shrink-0 p-2 sm:p-4 [--cell-size:1.75rem] sm:[--cell-size:2.25rem] md:[--cell-size:2.5rem]"
+                  />
+                </div>
+                <div className="flex-1 flex flex-col max-h-full justify-center overflow-y-auto">
+                  {fields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="flex items-center text-center gap-6 rounded-lg border bg-muted/30 px-4 py-3"
+                    >
+                      <p className="text-sm font-medium text-foreground">
+                        {field.date.toLocaleDateString(undefined, {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <FieldLabel className="text-xs">Start</FieldLabel>
+                          <Input
+                            type="time"
+                            className="w-full"
+                            {...register(
+                              `availableDatesWithTimes.${index}.startTime`,
+                            )}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <FieldLabel className="text-xs">End</FieldLabel>
+                          <Input
+                            type="time"
+                            className="w-full"
+                            {...register(
+                              `availableDatesWithTimes.${index}.endTime`,
+                            )}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            </div>
+            </Field>
           </FieldGroup>
         </form>
       </CardContent>
