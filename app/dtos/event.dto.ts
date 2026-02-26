@@ -19,4 +19,4 @@ export const CreateEventSchema = z.object({
   ),
 });
 
-export type CreateEvent = z.infer<typeof CreateEventSchema>;
+export type CreateEventDTO = z.infer<typeof CreateEventSchema>;

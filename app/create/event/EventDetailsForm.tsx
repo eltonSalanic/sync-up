@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
-import { CreateEventSchema, CreateEvent } from "@/app/dtos/event.dto";
+import { CreateEventSchema, CreateEventDTO } from "@/app/dtos/event.dto";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ export default function EventDetailsForm() {
     handleSubmit,
     getValues,
     formState: { errors, isSubmitting },
-  } = useForm<CreateEvent>({
+  } = useForm<CreateEventDTO>({
     resolver: zodResolver(CreateEventSchema),
     defaultValues: {},
   });
@@ -43,9 +43,9 @@ export default function EventDetailsForm() {
     name: "availableDatesWithTimes",
   });
 
-  const onSubmit: SubmitHandler<CreateEvent> = (data) => {
+  const onSubmit: SubmitHandler<CreateEventDTO> = (data) => {
     setServerError(null);
-    console.log("Form Data:", { ...data, selectedDates });
+    console.log("Form Data:", data);
   };
 
   function sortFieldDates() {
