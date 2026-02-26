@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
 import { CreateEventSchema, CreateEvent } from "@/app/dtos/event.dto";
 import { useState } from "react";
 
@@ -43,7 +43,7 @@ export default function EventDetailsForm() {
     name: "availableDatesWithTimes",
   });
 
-  const onSubmit = async (data: CreateEvent) => {
+  const onSubmit: SubmitHandler<CreateEvent> = (data) => {
     setServerError(null);
     console.log("Form Data:", { ...data, selectedDates });
   };
@@ -85,6 +85,24 @@ export default function EventDetailsForm() {
     sortFieldDates();
   }
 
+  function handleApplyAllTimes(sourceIndex: number) {
+    const current = getValues("availableDatesWithTimes");
+
+    if (!current || !current[sourceIndex]) {
+      return;
+    }
+
+    const { startTime, endTime } = current[sourceIndex];
+
+    const updated = current.map((item) => ({
+      ...item,
+      startTime,
+      endTime,
+    }));
+
+    replace(updated);
+  }
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -117,7 +135,7 @@ export default function EventDetailsForm() {
             <Field>
               <FieldLabel>Max People</FieldLabel>
               <Input
-                {...register("maxPeople")}
+                {...register("maxPeople", { valueAsNumber: true })}
                 type="number"
                 placeholder="Min. 1"
               />
@@ -129,7 +147,7 @@ export default function EventDetailsForm() {
             {/* Date and Time Select */}
             <Field>
               <FieldLabel>Select Dates</FieldLabel>
-              <div className="flex md:flex-row md:items-start">
+              <div className="flex items-center md:flex-row h-[400px]">
                 <div className="flex-1 min-w-0 md:w-auto">
                   <Calendar
                     mode="multiple"
@@ -139,7 +157,7 @@ export default function EventDetailsForm() {
                     className="rounded-lg border shrink-0 p-2 sm:p-4 [--cell-size:1.75rem] sm:[--cell-size:2.25rem] md:[--cell-size:2.5rem]"
                   />
                 </div>
-                <div className="flex-1 flex flex-col max-h-full justify-center overflow-y-auto">
+                <div className="flex-1 flex flex-col max-h-full overflow-y-scroll gap-3">
                   {fields.map((field, index) => (
                     <div
                       key={field.id}
@@ -152,27 +170,44 @@ export default function EventDetailsForm() {
                           day: "numeric",
                         })}
                       </p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <FieldLabel className="text-xs">Start</FieldLabel>
-                          <Input
-                            type="time"
-                            className="w-full"
-                            {...register(
-                              `availableDatesWithTimes.${index}.startTime`,
+                      <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <FieldLabel className="text-xs">Start</FieldLabel>
+                            <Input
+                              type="time"
+                              className="w-full"
+                              {...register(
+                                `availableDatesWithTimes.${index}.startTime`,
+                              )}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <FieldLabel className="text-xs">End</FieldLabel>
+                            <Input
+                              type="time"
+                              className="w-full"
+                              {...register(
+                                `availableDatesWithTimes.${index}.endTime`,
+                              )}
+                            />
+                            {errors.availableDatesWithTimes?.[index]
+                              ?.endTime && (
+                              <FieldError>
+                                {
+                                  errors.availableDatesWithTimes?.[index]
+                                    ?.endTime?.message
+                                }
+                              </FieldError>
                             )}
-                          />
+                          </div>
                         </div>
-                        <div className="space-y-1.5">
-                          <FieldLabel className="text-xs">End</FieldLabel>
-                          <Input
-                            type="time"
-                            className="w-full"
-                            {...register(
-                              `availableDatesWithTimes.${index}.endTime`,
-                            )}
-                          />
-                        </div>
+                        <Button
+                          type="button"
+                          onClick={() => handleApplyAllTimes(index)}
+                        >
+                          Apply All
+                        </Button>
                       </div>
                     </div>
                   ))}
