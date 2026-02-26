@@ -15,7 +15,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldError, FieldLabel, FieldGroup } from "@/components/ui/field";
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+  FieldGroup,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -25,7 +30,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createAnonUser } from "@/app/actions/users";
-
 
 export default function AnonUserForm() {
   const [serverError, setServerError] = useState<string | null>(null);
@@ -40,15 +44,15 @@ export default function AnonUserForm() {
     defaultValues: {
       fName: "",
       lName: "",
-      timezone: "" as any,
+      timezone: Timezones[0],
     },
   });
 
   const onSubmit = async (data: CreateAnonUser) => {
     setServerError(null);
-    
+
     const result = await createAnonUser(data);
-    
+
     if (!result.success) {
       setServerError(result.error || "An error occurred");
       return;
@@ -92,7 +96,11 @@ export default function AnonUserForm() {
                       {Timezones.map((timezone) => {
                         return (
                           <SelectItem key={timezone} value={timezone}>
-                            {timezone.split("_").join(" ") /* Removes underscores */}
+                            {
+                              timezone
+                                .split("_")
+                                .join(" ") /* Removes underscores */
+                            }
                           </SelectItem>
                         );
                       })}
@@ -109,7 +117,11 @@ export default function AnonUserForm() {
       </CardContent>
       <CardFooter>
         <Field>
-          <Button type="submit" disabled={isSubmitting} onClick={handleSubmit(onSubmit)}>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            onClick={handleSubmit(onSubmit)}
+          >
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </Field>
