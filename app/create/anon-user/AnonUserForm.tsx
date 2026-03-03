@@ -2,12 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
-import { AnonUserSchema, CreateAnonUser } from "@/app/dtos/user.dto";
 import { useState } from "react";
-
+import { AnonUserSchema, CreateAnonUser } from "@/app/dtos/user.dto";
 import { Timezones } from "@/app/types/enums";
-
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -33,6 +32,7 @@ import { createAnonUser } from "@/app/actions/users";
 
 export default function AnonUserForm() {
   const [serverError, setServerError] = useState<string | null>(null);
+  const router = useRouter();
 
   const {
     register,
@@ -54,9 +54,11 @@ export default function AnonUserForm() {
     const result = await createAnonUser(data);
 
     if (!result.success) {
-      setServerError(result.error || "An error occurred");
+      setServerError(result.error ?? "An error occurred");
       return;
     }
+    
+    router.push("/create/event");
   };
 
   return (
