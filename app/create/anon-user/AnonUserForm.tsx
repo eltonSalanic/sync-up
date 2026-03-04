@@ -31,8 +31,8 @@ import {
 import { createAnonUser } from "@/app/actions/users";
 
 export default function AnonUserForm() {
-  const [serverError, setServerError] = useState<string | null>(null);
   const router = useRouter();
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
@@ -50,14 +50,13 @@ export default function AnonUserForm() {
 
   const onSubmit = async (data: CreateAnonUser) => {
     setServerError(null);
-
     const result = await createAnonUser(data);
 
     if (!result.success) {
       setServerError(result.error ?? "An error occurred");
       return;
     }
-    
+
     router.push("/create/event");
   };
 
