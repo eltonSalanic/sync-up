@@ -16,20 +16,23 @@ export type Database = {
     Tables: {
       event_days: {
         Row: {
+          created_at: string
           end_time: string
-          event_id: number
+          event_id: string
           id: number
           start_time: string
         }
         Insert: {
+          created_at?: string
           end_time: string
-          event_id: number
+          event_id: string
           id?: number
           start_time: string
         }
         Update: {
+          created_at?: string
           end_time?: string
-          event_id?: number
+          event_id?: string
           id?: number
           start_time?: string
         }
@@ -45,16 +48,22 @@ export type Database = {
       }
       event_users: {
         Row: {
-          event_id: number
-          user_id: number
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
         }
         Insert: {
-          event_id: number
-          user_id?: number
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
         }
         Update: {
-          event_id?: number
-          user_id?: number
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -76,65 +85,76 @@ export type Database = {
       events: {
         Row: {
           created_at: string
+          creator_user_id: string
           description: string | null
-          id: number
-          max_members: number
-          minimum_time_minutes: number | null
+          id: string
+          maxMembers: number
+          min_time_ms: number | null
           name: string
-          timezone: Database["public"]["Enums"]["tz"]
         }
         Insert: {
           created_at?: string
+          creator_user_id: string
           description?: string | null
-          id?: number
-          max_members: number
-          minimum_time_minutes?: number | null
+          id?: string
+          maxMembers: number
+          min_time_ms?: number | null
           name: string
-          timezone: Database["public"]["Enums"]["tz"]
         }
         Update: {
           created_at?: string
+          creator_user_id?: string
           description?: string | null
-          id?: number
-          max_members?: number
-          minimum_time_minutes?: number | null
+          id?: string
+          maxMembers?: number
+          min_time_ms?: number | null
           name?: string
-          timezone?: Database["public"]["Enums"]["tz"]
-        }
-        Relationships: []
-      }
-      user_event_availability: {
-        Row: {
-          end_time: string
-          event_id: number
-          id: number
-          start_time: string
-          user_id: number
-        }
-        Insert: {
-          end_time: string
-          event_id: number
-          id?: number
-          start_time: string
-          user_id: number
-        }
-        Update: {
-          end_time?: string
-          event_id?: number
-          id?: number
-          start_time?: string
-          user_id?: number
         }
         Relationships: [
           {
-            foreignKeyName: "user_event_days_event_id_fkey"
+            foreignKeyName: "events_creator_user_id_fkey"
+            columns: ["creator_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_event_availability: {
+        Row: {
+          created_at: string
+          end_time: string
+          event_id: string
+          id: string
+          start_time: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          event_id: string
+          id?: string
+          start_time: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          event_id?: string
+          id?: string
+          start_time?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_event_availability_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_event_days_user_id_fkey"
+            foreignKeyName: "user_event_availability_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -145,27 +165,24 @@ export type Database = {
       users: {
         Row: {
           created_at: string
-          fName: string
-          id: number
-          is_guest: boolean
-          lName: string
-          timezone: Database["public"]["Enums"]["tz"]
+          first_name: string
+          id: string
+          last_name: string
+          timezone: Database["public"]["Enums"]["tz"] | null
         }
         Insert: {
           created_at?: string
-          fName: string
-          id: number
-          is_guest?: boolean
-          lName: string
-          timezone: Database["public"]["Enums"]["tz"]
+          first_name: string
+          id?: string
+          last_name: string
+          timezone?: Database["public"]["Enums"]["tz"] | null
         }
         Update: {
           created_at?: string
-          fName?: string
-          id?: number
-          is_guest?: boolean
-          lName?: string
-          timezone?: Database["public"]["Enums"]["tz"]
+          first_name?: string
+          id?: string
+          last_name?: string
+          timezone?: Database["public"]["Enums"]["tz"] | null
         }
         Relationships: []
       }
