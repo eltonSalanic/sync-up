@@ -3,11 +3,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { AnonUserSchema, CreateAnonUser } from "@/app/dtos/user.dto";
 import { ActionResult } from "@/app/types/ActionResult";
-import { User } from "../types/User";
+import { Database, Tables } from "@/database.types";
 
 
 
-export async function createAnonUser(formData: unknown): Promise<ActionResult<User>> {
+export async function createAnonUser(formData: unknown): Promise<ActionResult<Tables<"users">>> {
   // Validate input with Zod
   const validationResult = AnonUserSchema.safeParse(formData);
   
@@ -46,9 +46,10 @@ export async function createAnonUser(formData: unknown): Promise<ActionResult<Us
       // Returning user in case it's needed in the future
       data: {
         id: data.user?.id || "No User ID Returned By Supabase",
-        fName: data.user?.user_metadata.fName,
-        lName: data.user?.user_metadata.lName,
+        first_name: data.user?.user_metadata.fName,
+        last_name: data.user?.user_metadata.lName,
         timezone: data.user?.user_metadata.timezone,
+        created_at: data.user?.created_at || "",
       }
     };
   } catch (error) {
