@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
 import { CreateEventSchema, CreateEventDTO } from "@/app/dtos/event.dto";
 import { useState } from "react";
+import { createEvent } from "@/app/actions/events";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -43,9 +44,14 @@ export default function EventDetailsForm() {
     name: "availableDatesWithTimes",
   });
 
-  const onSubmit: SubmitHandler<CreateEventDTO> = (data) => {
+  const onSubmit: SubmitHandler<CreateEventDTO> = async (data) => {
     setServerError(null);
-    console.log("Form Data:", data);
+    const result = await createEvent(data);
+    if (!result.success) {
+      setServerError(result.error ?? "An unexpected error occurred");
+      return;
+    }
+    console.log("Event created:", result.data);
   };
 
   function sortFieldDates() {
@@ -109,7 +115,7 @@ export default function EventDetailsForm() {
         <CardTitle>Your Info</CardTitle>
       </CardHeader>
       <CardContent>
-        <form>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <FieldGroup>
             {serverError && (
               <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-4">
@@ -220,7 +226,6 @@ export default function EventDetailsForm() {
       <CardFooter>
         <Field>
           <Button
-            type="submit"
             disabled={isSubmitting}
             onClick={handleSubmit(onSubmit)}
           >
