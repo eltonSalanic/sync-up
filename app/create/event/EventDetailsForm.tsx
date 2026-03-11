@@ -7,6 +7,7 @@ import { useState } from "react";
 import { createEvent } from "@/app/actions/events";
 
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
@@ -25,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function EventDetailsForm() {
+  const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [selectedDates, setSelectedDates] = useState<Date[] | undefined>([]);
 
@@ -47,11 +49,12 @@ export default function EventDetailsForm() {
   const onSubmit: SubmitHandler<CreateEventDTO> = async (data) => {
     setServerError(null);
     const result = await createEvent(data);
-    if (!result.success) {
+    if (!result.success || !result.data) {
       setServerError(result.error ?? "An unexpected error occurred");
       return;
     }
     console.log("Event created:", result.data);
+    router.push(`/create/event/${result.data.id}/success`);
   };
 
   function sortFieldDates() {
