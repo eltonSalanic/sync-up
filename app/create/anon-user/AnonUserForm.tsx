@@ -13,6 +13,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import {
   Field,
@@ -30,8 +31,15 @@ import {
 } from "@/components/ui/select";
 import { createAnonUser } from "@/app/actions/users";
 
-export default function AnonUserForm() {
+interface AnonUserFormProps {
+  /** Present when a guest is joining via a share link */
+  eventId?: string;
+  eventName?: string;
+}
+
+export default function AnonUserForm({ eventId, eventName }: AnonUserFormProps) {
   const router = useRouter();
+  const isGuest = !!eventId;
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -50,20 +58,30 @@ export default function AnonUserForm() {
 
   const onSubmit = async (data: CreateAnonUser) => {
     setServerError(null);
-    const result = await createAnonUser(data);
+    const result = await createAnonUser(data, eventId);
 
     if (!result.success) {
       setServerError(result.error ?? "An error occurred");
       return;
     }
 
-    router.push("/create/event");
+    if (isGuest) {
+      // TODO: redirect to the event availability page once built
+      router.push("/");
+    } else {
+      router.push("/create/event");
+    }
   };
 
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Your Info</CardTitle>
+        {isGuest && eventName && (
+          <CardDescription>
+            Joining <span className="font-medium text-foreground">{eventName}</span>
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent>
         <form>
@@ -97,11 +115,7 @@ export default function AnonUserForm() {
                       {Timezones.map((timezone) => {
                         return (
                           <SelectItem key={timezone} value={timezone}>
-                            {
-                              timezone
-                                .split("_")
-                                .join(" ") /* Removes underscores */
-                            }
+                            {timezone.split("_").join(" ")}
                           </SelectItem>
                         );
                       })}
@@ -123,7 +137,9 @@ export default function AnonUserForm() {
             disabled={isSubmitting}
             onClick={handleSubmit(onSubmit)}
           >
-            {isSubmitting ? "Submitting..." : "Submit"}
+            {isSubmitting
+              ? isGuest ? "Joining..." : "Submitting..."
+              : isGuest ? "Join Event" : "Continue"}
           </Button>
         </Field>
       </CardFooter>
