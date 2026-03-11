@@ -66,8 +66,7 @@ export default function AnonUserForm({ eventId, eventName }: AnonUserFormProps) 
     }
 
     if (isGuest) {
-      // TODO: redirect to the event availability page once built
-      router.push("/");
+      router.push(`/event/${eventId}/availability`);
     } else {
       router.push("/create/event");
     }
