@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import {
@@ -13,15 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 
 export default function CopyLinkClient({ eventId }: { eventId: string }) {
-  const [isClient, setIsClient] = useState(false);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const baseUrl = isClient ? window.location.origin : "";
-  const shareUrl = `${baseUrl}/create/anon-user?eventId=${eventId}`;
+  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/create/anon-user?eventId=${eventId}`;
 
   const handleCopy = async () => {
     try {
