@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useNextCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
+import { createViewWeek, createViewDay } from "@schedule-x/calendar";
+import { createEventsServicePlugin } from "@schedule-x/events-service";
+import "temporal-polyfill/global";
+import "@schedule-x/theme-default/dist/index.css";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -18,17 +23,18 @@ import {
 } from "@/components/ui/card";
 import { submitAvailability, AvailabilitySlot } from "@/app/actions/availability";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface EventDay {
   id: number;
-  start_time: string;
-  end_time: string;
+  start_time: string; // ISO UTC
+  end_time: string;   // ISO UTC
 }
 
 interface AvailabilityFormProps {
   eventId: string;
   eventName: string;
   eventDays: EventDay[];
-  /** Guest's IANA timezone string e.g. "America/New_York" */
+  /** Guest's IANA timezone e.g. "America/New_York" */
   timezone: string;
 }
 
@@ -37,28 +43,16 @@ interface DaySlot {
   endTime: string;
 }
 
-/** Generate 30-minute time options between two ISO timestamps */
-function generateTimeOptions(
-  startIso: string,
-  endIso: string,
-  timezone: string
-): { label: string; iso: string }[] {
-  const options: { label: string; iso: string }[] = [];
-  const start = new Date(startIso);
-  const end = new Date(endIso);
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: timezone,
-  });
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-  let cursor = new Date(start);
-  while (cursor <= end) {
-    options.push({ label: formatter.format(cursor), iso: cursor.toISOString() });
-    cursor = new Date(cursor.getTime() + 30 * 60 * 1000);
-  }
-  return options;
+/** Convert ISO UTC timestamp → Temporal.ZonedDateTime in the given IANA timezone */
+function toZDT(isoString: string, timezone: string): Temporal.ZonedDateTime {
+  return Temporal.Instant.from(isoString).toZonedDateTimeISO(timezone);
+}
+
+/** Get Temporal.PlainDate in the given timezone for Schedule-X selectedDate */
+function toPlainDate(isoString: string, timezone: string): Temporal.PlainDate {
+  return Temporal.Instant.from(isoString).toZonedDateTimeISO(timezone).toPlainDate();
 }
 
 function formatDayHeading(isoString: string, timezone: string): string {
@@ -81,19 +75,74 @@ function formatTimeRange(start: string, end: string, timezone: string): string {
   return `${fmt(start)} – ${fmt(end)}`;
 }
 
+function generateTimeOptions(
+  startIso: string,
+  endIso: string,
+  timezone: string
+): { label: string; iso: string }[] {
+  const options: { label: string; iso: string }[] = [];
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: timezone,
+  });
+  let cursor = new Date(startIso);
+  const end = new Date(endIso);
+  while (cursor <= end) {
+    options.push({ label: formatter.format(cursor), iso: cursor.toISOString() });
+    cursor = new Date(cursor.getTime() + 30 * 60 * 1000);
+  }
+  return options;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function AvailabilityForm({
   eventId,
   eventName,
   eventDays,
   timezone,
 }: AvailabilityFormProps) {
-  // Map of eventDayId → list of { startTime, endTime } windows selected for that day
   const [selections, setSelections] = useState<Record<number, DaySlot[]>>(
     Object.fromEntries(eventDays.map((d) => [d.id, [{ startTime: "", endTime: "" }]]))
   );
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // ── Schedule-X setup ────────────────────────────────────────────────────
+  const eventsService = useState(() => createEventsServicePlugin())[0];
+
+  const calendar = useNextCalendarApp({
+    views: [createViewWeek(), createViewDay()],
+    defaultView: createViewWeek().name,
+    selectedDate: toPlainDate(eventDays[0].start_time, timezone),
+    timezone,
+    calendars: {
+      eventSlot: {
+        colorName: "eventSlot",
+        lightColors: {
+          main: "#16a34a",
+          container: "#dcfce7",
+          onContainer: "#14532d",
+        },
+        darkColors: {
+          main: "#4ade80",
+          container: "#166534",
+          onContainer: "#dcfce7",
+        },
+      },
+    },
+    events: eventDays.map((day) => ({
+      id: String(day.id),
+      title: eventName,
+      start: toZDT(day.start_time, timezone),
+      end: toZDT(day.end_time, timezone),
+      calendarId: "eventSlot",
+    })),
+    plugins: [eventsService],
+  });
+
+  // ── Selection handlers ───────────────────────────────────────────────────
   const addSlot = (dayId: number) => {
     setSelections((prev) => ({
       ...prev,
@@ -123,20 +172,18 @@ export default function AvailabilityForm({
 
   const handleSubmit = async () => {
     setServerError(null);
-
     const slots: AvailabilitySlot[] = [];
+
     for (const day of eventDays) {
       for (const slot of selections[day.id]) {
         if (slot.startTime && slot.endTime) {
           if (slot.endTime <= slot.startTime) {
-            setServerError(`End time must be after start time for ${formatDayHeading(day.start_time, timezone)}.`);
+            setServerError(
+              `End time must be after start time for ${formatDayHeading(day.start_time, timezone)}.`
+            );
             return;
           }
-          slots.push({
-            eventDayId: day.id,
-            startTime: slot.startTime,
-            endTime: slot.endTime,
-          });
+          slots.push({ eventDayId: day.id, startTime: slot.startTime, endTime: slot.endTime });
         }
       }
     }
@@ -156,7 +203,8 @@ export default function AvailabilityForm({
   };
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-8">
+      {/* ── Header ── */}
       <div className="text-center space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">Your Availability</h1>
         <p className="text-muted-foreground text-lg">
@@ -168,92 +216,101 @@ export default function AvailabilityForm({
       </div>
 
       {serverError && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded text-sm">
           {serverError}
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {eventDays.map((day) => {
-          const timeOptions = generateTimeOptions(day.start_time, day.end_time, timezone);
-          return (
-            <Card key={day.id} className="flex flex-col">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">
-                  {formatDayHeading(day.start_time, timezone)}
-                </CardTitle>
-                <CardDescription>
-                  Event window: {formatTimeRange(day.start_time, day.end_time, timezone)}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-3 flex-1">
-                {selections[day.id].map((slot, i) => (
-                  <div key={i} className="flex flex-col gap-2 border border-border rounded-md p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Window {i + 1}
-                      </span>
-                      {selections[day.id].length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeSlot(day.id, i)}
-                          className="text-xs text-red-500 hover:text-red-700 transition-colors"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-1">
-                        <label className="text-xs text-muted-foreground">From</label>
-                        <Select
-                          value={slot.startTime}
-                          onValueChange={(v) => updateSlot(day.id, i, "startTime", v)}
-                        >
-                          <SelectTrigger className="h-8 text-sm">
-                            <SelectValue placeholder="Start" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {timeOptions.slice(0, -1).map((opt) => (
-                              <SelectItem key={opt.iso} value={opt.iso}>
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+      {/* ── Schedule-X Calendar ── */}
+      <div className="rounded-xl overflow-hidden border border-border shadow-sm">
+        <ScheduleXCalendar calendarApp={calendar} />
+      </div>
+
+      {/* ── Availability selectors ── */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold">When are you free?</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {eventDays.map((day) => {
+            const timeOptions = generateTimeOptions(day.start_time, day.end_time, timezone);
+            return (
+              <Card key={day.id} className="flex flex-col">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">
+                    {formatDayHeading(day.start_time, timezone)}
+                  </CardTitle>
+                  <CardDescription>
+                    Event window: {formatTimeRange(day.start_time, day.end_time, timezone)}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3 flex-1">
+                  {selections[day.id].map((slot, i) => (
+                    <div key={i} className="flex flex-col gap-2 border border-border rounded-md p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Window {i + 1}
+                        </span>
+                        {selections[day.id].length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeSlot(day.id, i)}
+                            className="text-xs text-red-500 hover:text-red-700 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        )}
                       </div>
-                      <div className="space-y-1">
-                        <label className="text-xs text-muted-foreground">To</label>
-                        <Select
-                          value={slot.endTime}
-                          onValueChange={(v) => updateSlot(day.id, i, "endTime", v)}
-                        >
-                          <SelectTrigger className="h-8 text-sm">
-                            <SelectValue placeholder="End" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {timeOptions.slice(1).map((opt) => (
-                              <SelectItem key={opt.iso} value={opt.iso}>
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <label className="text-xs text-muted-foreground">From</label>
+                          <Select
+                            value={slot.startTime}
+                            onValueChange={(v) => updateSlot(day.id, i, "startTime", v)}
+                          >
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue placeholder="Start" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {timeOptions.slice(0, -1).map((opt) => (
+                                <SelectItem key={opt.iso} value={opt.iso}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-muted-foreground">To</label>
+                          <Select
+                            value={slot.endTime}
+                            onValueChange={(v) => updateSlot(day.id, i, "endTime", v)}
+                          >
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue placeholder="End" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {timeOptions.slice(1).map((opt) => (
+                                <SelectItem key={opt.iso} value={opt.iso}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => addSlot(day.id)}
-                  className="mt-1 text-sm text-primary hover:underline text-left transition-colors"
-                >
-                  + Add another window
-                </button>
-              </CardContent>
-            </Card>
-          );
-        })}
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => addSlot(day.id)}
+                    className="mt-1 text-sm text-primary hover:underline text-left transition-colors"
+                  >
+                    + Add another window
+                  </button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex justify-center pt-2">
