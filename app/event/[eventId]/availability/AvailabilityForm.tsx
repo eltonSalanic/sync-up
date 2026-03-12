@@ -55,6 +55,18 @@ function toPlainDate(isoString: string, timezone: string): Temporal.PlainDate {
   return Temporal.Instant.from(isoString).toZonedDateTimeISO(timezone).toPlainDate();
 }
 
+/** Get the local hour (0-23) for an ISO UTC timestamp in the given timezone */
+function getLocalHour(isoString: string, timezone: string): number {
+  const raw = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    hour: "2-digit",
+    hour12: false,
+  }).format(new Date(isoString));
+  const h = parseInt(raw, 10);
+  // Intl may return 24 for midnight — normalise
+  return h === 24 ? 0 : h;
+}
+
 function formatDayHeading(isoString: string, timezone: string): string {
   return new Intl.DateTimeFormat("en-US", {
     weekday: "short",
@@ -112,11 +124,24 @@ export default function AvailabilityForm({
   // ── Schedule-X setup ────────────────────────────────────────────────────
   const eventsService = useState(() => createEventsServicePlugin())[0];
 
+  // Compute ±4-hour window around the earliest start / latest end across all days
+  const startHours = eventDays.map((d) => getLocalHour(d.start_time, timezone));
+  const endHours   = eventDays.map((d) => getLocalHour(d.end_time, timezone));
+  const boundaryStart = Math.max(0,  Math.min(...startHours) - 4);
+  const boundaryEnd   = Math.min(24, Math.max(...endHours)   + 5);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const dayBoundaries = {
+    start: `${pad(boundaryStart)}:00`,
+    end:   `${pad(boundaryEnd)}:00`,
+  };
+
   const calendar = useNextCalendarApp({
     views: [createViewWeek(), createViewDay()],
     defaultView: createViewWeek().name,
     selectedDate: toPlainDate(eventDays[0].start_time, timezone),
     timezone,
+    dayBoundaries,
+    weekOptions: { gridHeight: (boundaryEnd - boundaryStart) * 64 },
     calendars: {
       eventSlot: {
         colorName: "eventSlot",
@@ -223,7 +248,7 @@ export default function AvailabilityForm({
 
       {/* ── Schedule-X Calendar ── */}
       <div className="rounded-xl overflow-hidden border border-border shadow-sm">
-        <ScheduleXCalendar calendarApp={calendar} />
+        <ScheduleXCalendar calendarApp={calendar}/>
       </div>
 
       {/* ── Availability selectors ── */}
