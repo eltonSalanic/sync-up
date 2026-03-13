@@ -21,6 +21,7 @@ import {
   FieldError,
   FieldLabel,
   FieldGroup,
+  FieldDescription,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -223,15 +224,18 @@ export default function EventDetailsForm() {
                 </div>
               </div>
             </Field>
+            <Field>
+              <FieldLabel>Pin</FieldLabel>
+              <FieldDescription>4 digit pin for your event. This will be used to see event info after creation. Don't forget it!</FieldDescription>
+              <Input {...register("pin")} placeholder="Pin" />
+              {errors.pin && <FieldError>{errors.pin?.message}</FieldError>}
+            </Field>
           </FieldGroup>
         </form>
       </CardContent>
       <CardFooter>
         <Field>
-          <Button
-            disabled={isSubmitting}
-            onClick={handleSubmit(onSubmit)}
-          >
+          <Button disabled={isSubmitting} onClick={handleSubmit(onSubmit)}>
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </Field>

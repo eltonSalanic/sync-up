@@ -91,6 +91,7 @@ export type Database = {
           maxMembers: number
           min_time_ms: number | null
           name: string
+          pin: string
         }
         Insert: {
           created_at?: string
@@ -100,6 +101,7 @@ export type Database = {
           maxMembers: number
           min_time_ms?: number | null
           name: string
+          pin: string
         }
         Update: {
           created_at?: string
@@ -109,6 +111,7 @@ export type Database = {
           maxMembers?: number
           min_time_ms?: number | null
           name?: string
+          pin?: string
         }
         Relationships: [
           {

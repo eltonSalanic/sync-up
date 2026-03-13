@@ -47,6 +47,7 @@ export async function createEvent(
       description: event.description,
       maxMembers: event.maxPeople,
       creator_user_id: user.id,
+      pin: event.pin
     })
     .select()
     .single();
