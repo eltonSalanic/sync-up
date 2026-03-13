@@ -26,6 +26,13 @@ import {
 } from "@/app/actions/availability";
 import { AvailabilitySlot } from "@/app/dtos/event.dto";
 import { useRouter } from "next/navigation";
+import {
+  toZDT,
+  toPlainDate,
+  formatDayHeading,
+  formatTimeRange,
+  generateTimeOptions,
+} from "./timeHelpers";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface EventDay {
@@ -47,75 +54,6 @@ interface DaySlot {
   endTime: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/** Convert ISO UTC timestamp → Temporal.ZonedDateTime in the given IANA timezone */
-function toZDT(isoString: string, timezone: string): Temporal.ZonedDateTime {
-  return Temporal.Instant.from(isoString).toZonedDateTimeISO(timezone);
-}
-
-/** Get Temporal.PlainDate in the given timezone for Schedule-X selectedDate */
-function toPlainDate(isoString: string, timezone: string): Temporal.PlainDate {
-  return Temporal.Instant.from(isoString)
-    .toZonedDateTimeISO(timezone)
-    .toPlainDate();
-}
-
-/** Get the local hour (0-23) for an ISO UTC timestamp in the given timezone */
-function getLocalHour(isoString: string, timezone: string): number {
-  const raw = new Intl.DateTimeFormat("en-US", {
-    timeZone: timezone,
-    hour: "2-digit",
-    hour12: false,
-  }).format(new Date(isoString));
-  const h = parseInt(raw, 10);
-  // Intl may return 24 for midnight — normalise
-  return h === 24 ? 0 : h;
-}
-
-function formatDayHeading(isoString: string, timezone: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    timeZone: timezone,
-  }).format(new Date(isoString));
-}
-
-function formatTimeRange(start: string, end: string, timezone: string): string {
-  const fmt = (iso: string) =>
-    new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: timezone,
-    }).format(new Date(iso));
-  return `${fmt(start)} – ${fmt(end)}`;
-}
-
-function generateTimeOptions(
-  startIso: string,
-  endIso: string,
-  timezone: string,
-): { label: string; iso: string }[] {
-  const options: { label: string; iso: string }[] = [];
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: timezone,
-  });
-  let cursor = new Date(startIso);
-  const end = new Date(endIso);
-  while (cursor <= end) {
-    options.push({
-      label: formatter.format(cursor),
-      iso: cursor.toISOString(),
-    });
-    cursor = new Date(cursor.getTime() + 30 * 60 * 1000);
-  }
-  return options;
-}
 
 export default function AvailabilityForm({
   eventId,
