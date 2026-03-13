@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/card";
 import {
   submitAvailability,
-  AvailabilitySlot,
 } from "@/app/actions/availability";
+import { AvailabilitySlot } from "@/app/dtos/event.dto";
 import { useRouter } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
