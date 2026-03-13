@@ -21,13 +21,17 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { submitAvailability, AvailabilitySlot } from "@/app/actions/availability";
+import {
+  submitAvailability,
+  AvailabilitySlot,
+} from "@/app/actions/availability";
+import { useRouter } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface EventDay {
   id: number;
   start_time: string; // ISO UTC
-  end_time: string;   // ISO UTC
+  end_time: string; // ISO UTC
 }
 
 interface AvailabilityFormProps {
@@ -52,7 +56,9 @@ function toZDT(isoString: string, timezone: string): Temporal.ZonedDateTime {
 
 /** Get Temporal.PlainDate in the given timezone for Schedule-X selectedDate */
 function toPlainDate(isoString: string, timezone: string): Temporal.PlainDate {
-  return Temporal.Instant.from(isoString).toZonedDateTimeISO(timezone).toPlainDate();
+  return Temporal.Instant.from(isoString)
+    .toZonedDateTimeISO(timezone)
+    .toPlainDate();
 }
 
 /** Get the local hour (0-23) for an ISO UTC timestamp in the given timezone */
@@ -90,7 +96,7 @@ function formatTimeRange(start: string, end: string, timezone: string): string {
 function generateTimeOptions(
   startIso: string,
   endIso: string,
-  timezone: string
+  timezone: string,
 ): { label: string; iso: string }[] {
   const options: { label: string; iso: string }[] = [];
   const formatter = new Intl.DateTimeFormat("en-US", {
@@ -102,21 +108,26 @@ function generateTimeOptions(
   let cursor = new Date(startIso);
   const end = new Date(endIso);
   while (cursor <= end) {
-    options.push({ label: formatter.format(cursor), iso: cursor.toISOString() });
+    options.push({
+      label: formatter.format(cursor),
+      iso: cursor.toISOString(),
+    });
     cursor = new Date(cursor.getTime() + 30 * 60 * 1000);
   }
   return options;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function AvailabilityForm({
   eventId,
   eventName,
   eventDays,
   timezone,
 }: AvailabilityFormProps) {
+  const router = useRouter();
   const [selections, setSelections] = useState<Record<number, DaySlot[]>>(
-    Object.fromEntries(eventDays.map((d) => [d.id, [{ startTime: "", endTime: "" }]]))
+    Object.fromEntries(
+      eventDays.map((d) => [d.id, [{ startTime: "", endTime: "" }]]),
+    ),
   );
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,11 +153,11 @@ export default function AvailabilityForm({
   }
 
   const boundaryStart = Math.max(0, minHour - 4);
-  const boundaryEnd   = Math.min(24, maxHour + 5);
+  const boundaryEnd = Math.min(24, maxHour + 5);
   const pad = (n: number) => String(n).padStart(2, "0");
   const dayBoundaries = {
     start: `${pad(boundaryStart)}:00`,
-    end:   `${pad(boundaryEnd)}:00`,
+    end: `${pad(boundaryEnd)}:00`,
   };
 
   const calendar = useNextCalendarApp({
@@ -201,13 +212,15 @@ export default function AvailabilityForm({
         ];
       }
 
-      return [{
-        id: String(day.id),
-        title: eventName,
-        start: zdtStart,
-        end: zdtEnd,
-        calendarId: "eventSlot",
-      }];
+      return [
+        {
+          id: String(day.id),
+          title: eventName,
+          start: zdtStart,
+          end: zdtEnd,
+          calendarId: "eventSlot",
+        },
+      ];
     }),
     plugins: [eventsService],
   });
@@ -231,7 +244,7 @@ export default function AvailabilityForm({
     dayId: number,
     index: number,
     field: "startTime" | "endTime",
-    value: string
+    value: string,
   ) => {
     setSelections((prev) => {
       const updated = [...prev[dayId]];
@@ -249,11 +262,15 @@ export default function AvailabilityForm({
         if (slot.startTime && slot.endTime) {
           if (slot.endTime <= slot.startTime) {
             setServerError(
-              `End time must be after start time for ${formatDayHeading(day.start_time, timezone)}.`
+              `End time must be after start time for ${formatDayHeading(day.start_time, timezone)}.`,
             );
             return;
           }
-          slots.push({ eventDayId: day.id, startTime: slot.startTime, endTime: slot.endTime });
+          slots.push({
+            eventDayId: day.id,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+          });
         }
       }
     }
@@ -269,6 +286,8 @@ export default function AvailabilityForm({
 
     if (!result?.success) {
       setServerError(result?.error ?? "Something went wrong.");
+    } else {
+      router.push("/");
     }
   };
 
@@ -278,22 +297,17 @@ export default function AvailabilityForm({
       <div className="text-center space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">Your Availability</h1>
         <p className="text-muted-foreground text-lg">
-          For{" "}
-          <span className="font-semibold text-foreground">{eventName}</span>
-          {" "}— select the times you&apos;re free on each day.
+          For <span className="font-semibold text-foreground">{eventName}</span>{" "}
+          — select the times you&apos;re free on each day.
         </p>
-        <p className="text-sm text-muted-foreground">Times shown in your timezone: {timezone}</p>
+        <p className="text-sm text-muted-foreground">
+          Times shown in your timezone: {timezone}
+        </p>
       </div>
-
-      {serverError && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded text-sm">
-          {serverError}
-        </div>
-      )}
 
       {/* ── Schedule-X Calendar ── */}
       <div className="rounded-xl overflow-hidden border border-border shadow-sm">
-        <ScheduleXCalendar calendarApp={calendar}/>
+        <ScheduleXCalendar calendarApp={calendar} />
       </div>
 
       {/* ── Availability selectors ── */}
@@ -301,7 +315,11 @@ export default function AvailabilityForm({
         <h2 className="text-lg font-semibold">When are you free?</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {eventDays.map((day) => {
-            const timeOptions = generateTimeOptions(day.start_time, day.end_time, timezone);
+            const timeOptions = generateTimeOptions(
+              day.start_time,
+              day.end_time,
+              timezone,
+            );
             return (
               <Card key={day.id} className="flex flex-col">
                 <CardHeader className="pb-2">
@@ -309,12 +327,16 @@ export default function AvailabilityForm({
                     {formatDayHeading(day.start_time, timezone)}
                   </CardTitle>
                   <CardDescription>
-                    Event window: {formatTimeRange(day.start_time, day.end_time, timezone)}
+                    Event window:{" "}
+                    {formatTimeRange(day.start_time, day.end_time, timezone)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3 flex-1">
                   {selections[day.id].map((slot, i) => (
-                    <div key={i} className="flex flex-col gap-2 border border-border rounded-md p-3">
+                    <div
+                      key={i}
+                      className="flex flex-col gap-2 border border-border rounded-md p-3"
+                    >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                           Window {i + 1}
@@ -331,10 +353,14 @@ export default function AvailabilityForm({
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">From</label>
+                          <label className="text-xs text-muted-foreground">
+                            From
+                          </label>
                           <Select
                             value={slot.startTime}
-                            onValueChange={(v) => updateSlot(day.id, i, "startTime", v)}
+                            onValueChange={(v) =>
+                              updateSlot(day.id, i, "startTime", v)
+                            }
                           >
                             <SelectTrigger className="h-8 text-sm">
                               <SelectValue placeholder="Start" />
@@ -349,10 +375,14 @@ export default function AvailabilityForm({
                           </Select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-muted-foreground">To</label>
+                          <label className="text-xs text-muted-foreground">
+                            To
+                          </label>
                           <Select
                             value={slot.endTime}
-                            onValueChange={(v) => updateSlot(day.id, i, "endTime", v)}
+                            onValueChange={(v) =>
+                              updateSlot(day.id, i, "endTime", v)
+                            }
                           >
                             <SelectTrigger className="h-8 text-sm">
                               <SelectValue placeholder="End" />
@@ -382,6 +412,11 @@ export default function AvailabilityForm({
           })}
         </div>
       </div>
+      {serverError && (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded text-sm">
+          {serverError}
+        </div>
+      )}
 
       <div className="flex justify-center pt-2">
         <Button
