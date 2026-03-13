@@ -39,7 +39,7 @@ interface AvailabilityFormProps {
   eventName: string;
   eventDays: EventDay[];
   /** Guest's IANA timezone e.g. "America/New_York" */
-  timezone: string;
+  userTimezone: string;
 }
 
 interface DaySlot {
@@ -121,7 +121,7 @@ export default function AvailabilityForm({
   eventId,
   eventName,
   eventDays,
-  timezone,
+  userTimezone,
 }: AvailabilityFormProps) {
   const router = useRouter();
   const [selections, setSelections] = useState<Record<number, DaySlot[]>>(
@@ -140,8 +140,8 @@ export default function AvailabilityForm({
   let maxHour = 0;
 
   for (const day of eventDays) {
-    const zdtStart = toZDT(day.start_time, timezone);
-    const zdtEnd = toZDT(day.end_time, timezone);
+    const zdtStart = toZDT(day.start_time, userTimezone);
+    const zdtEnd = toZDT(day.end_time, userTimezone);
 
     if (!zdtStart.toPlainDate().equals(zdtEnd.toPlainDate())) {
       minHour = 0;
@@ -163,8 +163,8 @@ export default function AvailabilityForm({
   const calendar = useNextCalendarApp({
     views: [createViewWeek(), createViewDay()],
     defaultView: createViewWeek().name,
-    selectedDate: toPlainDate(eventDays[0].start_time, timezone),
-    timezone,
+    selectedDate: toPlainDate(eventDays[0].start_time, userTimezone),
+    timezone: userTimezone,
     dayBoundaries,
     weekOptions: { gridHeight: (boundaryEnd - boundaryStart) * 64 },
     calendars: {
@@ -184,8 +184,8 @@ export default function AvailabilityForm({
     },
     //split dates if they cross midnight to show them seperately in the calendar
     events: eventDays.flatMap((day) => {
-      const zdtStart = toZDT(day.start_time, timezone);
-      const zdtEnd = toZDT(day.end_time, timezone);
+      const zdtStart = toZDT(day.start_time, userTimezone);
+      const zdtEnd = toZDT(day.end_time, userTimezone);
 
       // Check if it crosses midnight in the local timezone
       if (!zdtStart.toPlainDate().equals(zdtEnd.toPlainDate())) {
@@ -270,7 +270,7 @@ export default function AvailabilityForm({
         if (slot.startTime && slot.endTime) {
           if (slot.endTime <= slot.startTime) {
             setServerError(
-              `End time must be after start time for ${formatDayHeading(day.start_time, timezone)}.`,
+              `End time must be after start time for ${formatDayHeading(day.start_time, userTimezone)}.`,
             );
             return;
           }
@@ -309,7 +309,7 @@ export default function AvailabilityForm({
           — select the times you&apos;re free on each day.
         </p>
         <p className="text-sm text-muted-foreground">
-          Times shown in your timezone: {timezone}
+          Times shown in your timezone: {userTimezone}
         </p>
       </div>
 
@@ -326,17 +326,17 @@ export default function AvailabilityForm({
             const timeOptions = generateTimeOptions(
               day.start_time,
               day.end_time,
-              timezone,
+              userTimezone,
             );
             return (
               <Card key={day.id} className="flex flex-col">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base">
-                    {formatDayHeading(day.start_time, timezone)}
+                    {formatDayHeading(day.start_time, userTimezone)}
                   </CardTitle>
                   <CardDescription>
                     Event window:{" "}
-                    {formatTimeRange(day.start_time, day.end_time, timezone)}
+                    {formatTimeRange(day.start_time, day.end_time, userTimezone)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3 flex-1">

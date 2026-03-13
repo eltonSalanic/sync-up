@@ -57,7 +57,7 @@ export default async function AvailabilityPage({
         eventId={eventId}
         eventName={event.name}
         eventDays={eventDays}
-        timezone={timezone}
+        userTimezone={timezone}
       />
     </div>
   );
