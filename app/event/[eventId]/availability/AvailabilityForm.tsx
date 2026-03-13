@@ -125,10 +125,24 @@ export default function AvailabilityForm({
   const eventsService = useState(() => createEventsServicePlugin())[0];
 
   // Compute ±4-hour window around the earliest start / latest end across all days
-  const startHours = eventDays.map((d) => getLocalHour(d.start_time, timezone));
-  const endHours   = eventDays.map((d) => getLocalHour(d.end_time, timezone));
-  const boundaryStart = Math.max(0,  Math.min(...startHours) - 4);
-  const boundaryEnd   = Math.min(24, Math.max(...endHours)   + 5);
+  let minHour = 24;
+  let maxHour = 0;
+
+  for (const day of eventDays) {
+    const zdtStart = toZDT(day.start_time, timezone);
+    const zdtEnd = toZDT(day.end_time, timezone);
+
+    if (!zdtStart.toPlainDate().equals(zdtEnd.toPlainDate())) {
+      minHour = 0;
+      maxHour = 24;
+    } else {
+      minHour = Math.min(minHour, zdtStart.hour);
+      maxHour = Math.max(maxHour, zdtEnd.hour + (zdtEnd.minute > 0 ? 1 : 0));
+    }
+  }
+
+  const boundaryStart = Math.max(0, minHour - 4);
+  const boundaryEnd   = Math.min(24, maxHour + 5);
   const pad = (n: number) => String(n).padStart(2, "0");
   const dayBoundaries = {
     start: `${pad(boundaryStart)}:00`,
@@ -157,13 +171,44 @@ export default function AvailabilityForm({
         },
       },
     },
-    events: eventDays.map((day) => ({
-      id: String(day.id),
-      title: eventName,
-      start: toZDT(day.start_time, timezone),
-      end: toZDT(day.end_time, timezone),
-      calendarId: "eventSlot",
-    })),
+    //split dates if they cross midnight to show them seperately in the calendar
+    events: eventDays.flatMap((day) => {
+      const zdtStart = toZDT(day.start_time, timezone);
+      const zdtEnd = toZDT(day.end_time, timezone);
+
+      // Check if it crosses midnight in the local timezone
+      if (!zdtStart.toPlainDate().equals(zdtEnd.toPlainDate())) {
+        // Create an end time for the first day at 23:59
+        const endOfFirstDay = zdtStart.withPlainTime("23:59");
+        // Create a start time for the second day at 00:00
+        const startOfSecondDay = zdtEnd.withPlainTime("00:00");
+
+        return [
+          {
+            id: `${day.id}-part1`,
+            title: eventName,
+            start: zdtStart,
+            end: endOfFirstDay,
+            calendarId: "eventSlot",
+          },
+          {
+            id: `${day.id}-part2`,
+            title: eventName,
+            start: startOfSecondDay,
+            end: zdtEnd,
+            calendarId: "eventSlot",
+          },
+        ];
+      }
+
+      return [{
+        id: String(day.id),
+        title: eventName,
+        start: zdtStart,
+        end: zdtEnd,
+        calendarId: "eventSlot",
+      }];
+    }),
     plugins: [eventsService],
   });
 
