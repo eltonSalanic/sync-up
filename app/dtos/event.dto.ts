@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-
+// Create Event
 export const CreateEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().min(1, "Description is required"),
@@ -20,3 +20,12 @@ export const CreateEventSchema = z.object({
 });
 
 export type CreateEventDTO = z.infer<typeof CreateEventSchema>;
+
+// Availability Slots
+export const AvailabilitySlotSchema = z.object({
+  startTime: z.iso.time(),
+  endTime: z.iso.time(),
+  eventDayId: z.number().int().positive(),
+});
+
+export type AvailabilitySlot = z.infer<typeof AvailabilitySlotSchema>
