@@ -240,6 +240,14 @@ export default function AvailabilityForm({
     }));
   };
 
+  const clearSlot = (dayId: number, index: number) => {
+    setSelections((prev) => {
+      const updated = [...prev[dayId]];
+      updated[index] = { ...updated[index], startTime: "", endTime: "" };
+      return { ...prev, [dayId]: updated };
+    });
+  };
+
   const updateSlot = (
     dayId: number,
     index: number,
@@ -341,15 +349,30 @@ export default function AvailabilityForm({
                         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                           Window {i + 1}
                         </span>
-                        {selections[day.id].length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeSlot(day.id, i)}
-                            className="text-xs text-red-500 hover:text-red-700 transition-colors"
-                          >
-                            Remove
-                          </button>
-                        )}
+                        <div className="flex items-center gap-1">
+                          {(slot.startTime || slot.endTime) && (
+                            <Button
+                              type="button"
+                              onClick={() => clearSlot(day.id, i)}
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              Clear
+                            </Button>
+                          )}
+                          {selections[day.id].length > 1 && (
+                            <Button
+                              type="button"
+                              onClick={() => removeSlot(day.id, i)}
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
@@ -399,13 +422,15 @@ export default function AvailabilityForm({
                       </div>
                     </div>
                   ))}
-                  <button
+                  <Button
                     type="button"
+                    variant="link"
+                    size="sm"
                     onClick={() => addSlot(day.id)}
-                    className="mt-1 text-sm text-primary hover:underline text-left transition-colors"
+                    className="mt-1 flex justify-start p-0 h-auto text-sm text-primary hover:underline transition-colors"
                   >
                     + Add another window
-                  </button>
+                  </Button>
                 </CardContent>
               </Card>
             );
