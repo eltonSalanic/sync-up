@@ -21,10 +21,9 @@ export const CreateEventSchema = z.object({
 
 export type CreateEventDTO = z.infer<typeof CreateEventSchema>;
 
-// Availability Slots
 export const AvailabilitySlotSchema = z.object({
-  startTime: z.iso.time(),
-  endTime: z.iso.time(),
+  startTime: z.iso.datetime(),
+  endTime: z.iso.datetime(),
   eventDayId: z.number().int().positive(),
 });
 
