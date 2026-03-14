@@ -1,4 +1,7 @@
 import CopyLinkClient from "./CopyLinkClient";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 export default async function EventSuccessPage({
   params,
@@ -18,6 +21,19 @@ export default async function EventSuccessPage({
       </div>
 
       <CopyLinkClient eventId={eventId} />
+
+      <div className="flex flex-col items-center mt-4 w-full border-t border-border pt-8">
+        <h2 className="text-xl font-semibold mb-2">Ready to see your results?</h2>
+        <p className="text-muted-foreground text-center mb-6">
+          You can check this dashboard at any time to see when your friends are available. Bookmark it so you don&apos;t lose it!
+        </p>
+        <Button asChild size="lg" className="w-full sm:w-auto">
+          <Link href={`/event/${eventId}/dashboard`}>
+            Go to Event Dashboard
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }
