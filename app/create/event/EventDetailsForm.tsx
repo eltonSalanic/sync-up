@@ -226,7 +226,10 @@ export default function EventDetailsForm() {
             </Field>
             <Field>
               <FieldLabel>Pin</FieldLabel>
-              <FieldDescription>4 digit pin for your event. This will be used to see event info after creation. Don't forget it!</FieldDescription>
+              <FieldDescription>
+                4 digit pin for your event. This will be used to see event info
+                after creation. Don&apos;t forget it!
+              </FieldDescription>
               <Input {...register("pin")} placeholder="Pin" />
               {errors.pin && <FieldError>{errors.pin?.message}</FieldError>}
             </Field>
