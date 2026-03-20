@@ -14,7 +14,7 @@ interface AvailabilityDisplayCalendarProps {
 // Generate all 24 hour labels (0 → 23)
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-// Number of 5-min slots per hour
+// Number of 5-min slots per hour. If you change: 60/min increment
 const SLOTS_PER_HOUR = 12;
 
 // Total columns
@@ -31,11 +31,11 @@ export default function AvailabilityDisplayCalendar({
   endDate,
 }: AvailabilityDisplayCalendarProps) {
   return (
+    /* Wrapper that sets the containers width */
     <div className="w-full overflow-x-auto">
-      {/* ── Wrapper that sets the reference width ── */}
+      {/* Sets the width of the timeline. Width determines width of time grid */}
       <div className="min-w-[1200px]">
-
-        {/* ── Availability Grid ── */}
+        {/* Scrollable Timeline Grid */}
         <div
           className="h-[250px] grid bg-muted rounded-t-md border border-b-0 border-border"
           style={{
@@ -46,6 +46,7 @@ export default function AvailabilityDisplayCalendar({
           {HOURS.map((hour) => (
             <div
               key={`divider-${hour}`}
+              // Border on the right, except last hour
               className={`opacity-50 ${hour < 23 ? "border-r border-border" : ""}`}
               style={{
                 gridColumn: `${hour * SLOTS_PER_HOUR + 1} / span ${SLOTS_PER_HOUR}`,
@@ -55,7 +56,7 @@ export default function AvailabilityDisplayCalendar({
           ))}
         </div>
 
-        {/* ── Timeline Row ── */}
+        {/* Times Row */}
         <div className="relative h-8 border border-border rounded-b-md bg-card">
           {/*
             Each hour label sits at every (hour / 24 * 100)% of the width.
