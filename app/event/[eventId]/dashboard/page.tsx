@@ -1,5 +1,10 @@
 import { notFound } from "next/navigation";
-import { createClient, QueryResult, QueryData, QueryError } from "@supabase/supabase-js";
+import {
+  createClient,
+  QueryResult,
+  QueryData,
+  QueryError,
+} from "@supabase/supabase-js";
 import {
   Card,
   CardContent,
@@ -8,6 +13,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Database } from "@/database.types";
+import AvailabilityDisplayCalendar from "./AvailabilityDisplayCalendar";
 
 export default async function EventDashboardPage({
   params,
@@ -15,7 +21,10 @@ export default async function EventDashboardPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const supabase = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!);
+  const supabase = createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+  );
 
   // 1. Fetch Event Info
   const { data: event, error: eventError } = await supabase
@@ -32,7 +41,8 @@ export default async function EventDashboardPage({
   // data: allAvailabilitySlots, error: availabilityErro
   const availabilityWithUsersQuery = supabase
     .from("users")
-    .select(`
+    .select(
+      `
       id,
       first_name,
       last_name,
@@ -40,21 +50,20 @@ export default async function EventDashboardPage({
         start_time,
         end_time
       )
-    `)
+    `,
+    )
     .eq("user_event_availability.event_id", eventId);
 
   type AvailabilityWithUsers = QueryData<typeof availabilityWithUsersQuery>;
-  const {data, error: availabilityError} = await availabilityWithUsersQuery;
+  const { data, error: availabilityError } = await availabilityWithUsersQuery;
   const availabilitySlotsWithUsers: AvailabilityWithUsers | null = data;
 
-
-  if(availabilityError){
+  if (availabilityError) {
     console.error("Error fetching availability results:", availabilityError);
     return null;
   }
 
-  console.log('Slots', availabilitySlotsWithUsers);
-  
+  console.log("Slots", availabilitySlotsWithUsers);
 
   /*// Extract unique users who have responded
   const uniqueResponders = new Map<string, string>();
@@ -77,6 +86,7 @@ export default async function EventDashboardPage({
         </h1>
         <p className="text-muted-foreground">{event.description}</p>
       </div>
+      <AvailabilityDisplayCalendar />
       {/* Heatmap Placeholder */}
       {/*
         <Card>
