@@ -56,63 +56,32 @@ export default function AvailabilityDisplayCalendar({
           ))}
         </div>
 
-        {/* Times Row */}
-        <div className="relative h-8 border border-border rounded-b-md bg-card">
-          {/*
-            Each hour label sits at every (hour / 24 * 100)% of the width.
-            We skip hour 0 (far left) to avoid clipping and position 12 AM
-            at the very start edge.
-          */}
-          {HOURS.map((hour) => {
-            const leftPercent = (hour / 24) * 100;
-            return (
+        {/* Times Row (24-column grid) */}
+        <div
+          className="h-8 grid border border-border rounded-b-md bg-card"
+          style={{ gridTemplateColumns: "repeat(24, 1fr)" }}
+        >
+          {HOURS.map((hour) => (
+            <div key={`time-cell-${hour}`} className="relative border-l border-transparent">
+              {/* Hour Label - centered on the left edge of its cell */}
               <span
-                key={`label-${hour}`}
-                className="absolute top-1/2 -translate-y-1/2 select-none text-[0.625rem] font-medium text-muted-foreground whitespace-nowrap leading-none px-[2px]"
+                className="absolute top-1/2 left-0 select-none text-[0.625rem] font-medium text-muted-foreground whitespace-nowrap leading-none px-[2px]"
                 style={{
-                  left: `${leftPercent}%`,
-                  // Center the label on its tick, except the first which is left-aligned
-                  transform:
-                    hour === 0
-                      ? "translateY(-50%)"
-                      : hour === 23
-                        ? "translate(-100%, -50%)"
-                        : "translate(-50%, -50%)",
-                  fontFamily: "var(--font-accent)",   // Roboto Mono for tick labels
+                  // Align the first item to the left, center all others exactly over the grid line
+                  transform: hour === 0 ? "translate(0%, -50%)" : "translate(-50%, -50%)",
+                  fontFamily: "var(--font-accent)",
                 }}
               >
                 {formatHour(hour)}
               </span>
-            );
-          })}
 
-          {/* Tick marks at every hour boundary */}
-          {HOURS.map((hour) => {
-            const leftPercent = (hour / 24) * 100;
-            return (
-              <div
-                key={`tick-${hour}`}
-                className="absolute top-0 w-[1px] h-[4px] bg-border"
-                style={{
-                  left: `${leftPercent}%`,
-                }}
-              />
-            );
-          })}
+              {/* Hour tick - aligned to the left edge of the cell */}
+              <div className="absolute top-0 left-0 w-px h-[4px] bg-border" />
 
-          {/* Half-hour sub-ticks */}
-          {HOURS.map((hour) => {
-            const leftPercent = ((hour + 0.5) / 24) * 100;
-            return (
-              <div
-                key={`half-tick-${hour}`}
-                className="absolute top-0 w-[1px] h-[3px] bg-border opacity-60"
-                style={{
-                  left: `${leftPercent}%`,
-                }}
-              />
-            );
-          })}
+              {/* Half-hour sub-tick - centered perfectly inside this 1-hour cell */}
+              <div className="absolute top-0 left-1/2 w-px h-[3px] bg-border opacity-60" />
+            </div>
+          ))}
         </div>
       </div>
     </div>
