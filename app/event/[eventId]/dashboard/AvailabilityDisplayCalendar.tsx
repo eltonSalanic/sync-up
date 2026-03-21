@@ -34,7 +34,7 @@ export default function AvailabilityDisplayCalendar({
     /* Wrapper that sets the containers width */
     <div className="w-full overflow-x-auto">
       {/* Sets the width of the timeline. Width determines width of time grid */}
-      <div className="min-w-[1200px]">
+      <div className="min-w-[2200px]">
         {/* Scrollable Timeline Grid */}
         <div
           className="h-[250px] grid bg-muted rounded-t-md border border-b-0 border-border"
@@ -42,8 +42,11 @@ export default function AvailabilityDisplayCalendar({
             gridTemplateColumns: `repeat(${TOTAL_COLS}, 1fr)`,
           }}
         >
+          {/* Start Col = (Hour * 12) + (min / 5) round up */}
+          {/* End Col = (Hour * 12) + (min / 5 )round up  */}
+          <div className="col-start-1 col-end-13 bg-red-500"></div>
           {/* Hour divider lines inside the grid */}
-          {HOURS.map((hour) => (
+          {/*HOURS.map((hour) => (
             <div
               key={`divider-${hour}`}
               // Border on the right, except last hour
@@ -53,7 +56,7 @@ export default function AvailabilityDisplayCalendar({
                 gridRow: "1",
               }}
             />
-          ))}
+          ))*/}
         </div>
 
         {/* Times Row (24-column grid) */}
