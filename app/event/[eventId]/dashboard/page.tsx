@@ -1,18 +1,5 @@
 import { notFound } from "next/navigation";
-import {
-  createClient,
-  QueryResult,
-  QueryData,
-  QueryError,
-} from "@supabase/supabase-js";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Database } from "@/database.types";
+import { createClient } from "@/lib/supabase/client";
 import AvailabilityDisplayCalendar from "./AvailabilityDisplayCalendar";
 
 export default async function EventDashboardPage({
@@ -21,10 +8,7 @@ export default async function EventDashboardPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const supabase = createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-  );
+  const supabase = createClient();
 
   // 1. Fetch Event Info
   const { data: event, error: eventError } = await supabase
@@ -38,8 +22,7 @@ export default async function EventDashboardPage({
   }
 
   // 2. Fetch Availability Results
-  // data: allAvailabilitySlots, error: availabilityErro
-  const availabilityWithUsersQuery = supabase
+  const { data: usersWithAvailability, error: availabilityError } = await supabase
     .from("users")
     .select(
       `
@@ -54,16 +37,12 @@ export default async function EventDashboardPage({
     )
     .eq("user_event_availability.event_id", eventId);
 
-  type AvailabilityWithUsers = QueryData<typeof availabilityWithUsersQuery>;
-  const { data, error: availabilityError } = await availabilityWithUsersQuery;
-  const availabilitySlotsWithUsers: AvailabilityWithUsers | null = data;
-
   if (availabilityError) {
     console.error("Error fetching availability results:", availabilityError);
     return null;
   }
 
-  console.log("Slots", availabilitySlotsWithUsers);
+  console.log("Slots", usersWithAvailability);
 
   /*// Extract unique users who have responded
   const uniqueResponders = new Map<string, string>();
@@ -86,7 +65,7 @@ export default async function EventDashboardPage({
         </h1>
         <p className="text-muted-foreground">{event.description}</p>
       </div>
-      <AvailabilityDisplayCalendar />
+      <AvailabilityDisplayCalendar usersWithAvailability={usersWithAvailability}/>
       {/* Heatmap Placeholder */}
       {/*
         <Card>
