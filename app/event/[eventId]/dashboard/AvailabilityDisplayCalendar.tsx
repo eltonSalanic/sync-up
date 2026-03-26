@@ -1,5 +1,8 @@
 "use client";
 
+import { Tables }  from "@/database.types";
+import { UsersWithAvailability } from "./types";
+
 /*
   -- 5 Min Grids --
   12 grids per hour * 24 hours = 288 grids total
@@ -7,8 +10,7 @@
 */
 
 interface AvailabilityDisplayCalendarProps {
-  startDate?: Date;
-  endDate?: Date;
+  usersWithAvailability: UsersWithAvailability
 }
 
 // Generate all 24 hour labels (0 → 23)
@@ -27,8 +29,7 @@ function formatHour(hour: number): string {
 }
 
 export default function AvailabilityDisplayCalendar({
-  startDate,
-  endDate,
+  usersWithAvailability
 }: AvailabilityDisplayCalendarProps) {
   return (
     /* Wrapper that sets the containers width */
