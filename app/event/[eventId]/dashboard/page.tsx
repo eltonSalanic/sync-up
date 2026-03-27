@@ -22,20 +22,22 @@ export default async function EventDashboardPage({
   }
 
   // 2. Fetch Availability Results
-  const { data: usersWithAvailability, error: availabilityError } = await supabase
-    .from("users")
-    .select(
-      `
+  const { data: usersWithAvailability, error: availabilityError } =
+    await supabase
+      .from("users")
+      .select(
+        `
       id,
       first_name,
       last_name,
       timeSlot:user_event_availability!inner(
+        id,
         start_time,
         end_time
       )
     `,
-    )
-    .eq("user_event_availability.event_id", eventId);
+      )
+      .eq("user_event_availability.event_id", eventId);
 
   if (availabilityError) {
     console.error("Error fetching availability results:", availabilityError);
@@ -65,7 +67,9 @@ export default async function EventDashboardPage({
         </h1>
         <p className="text-muted-foreground">{event.description}</p>
       </div>
-      <AvailabilityDisplayCalendar usersWithAvailability={usersWithAvailability}/>
+      <AvailabilityDisplayCalendar
+        usersWithAvailability={usersWithAvailability}
+      />
       {/* Heatmap Placeholder */}
       {/*
         <Card>
