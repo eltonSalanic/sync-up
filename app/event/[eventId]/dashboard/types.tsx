@@ -4,18 +4,21 @@ import { QueryData } from "@supabase/supabase-js";
 const supabase = createClient();
 
 const usersWithAvailabilityQuery = supabase
-    .from("users")
-    .select(
-      `
+  .from("users")
+  .select(
+    `
       id,
       first_name,
       last_name,
       timeSlot:user_event_availability!inner(
+        id,
         start_time,
         end_time
       )
     `,
-    )
-    .eq("user_event_availability.event_id", "");
+  )
+  .eq("user_event_availability.event_id", "");
 
-export type UsersWithAvailability = QueryData<typeof usersWithAvailabilityQuery>;
+export type UsersWithAvailability = QueryData<
+  typeof usersWithAvailabilityQuery
+>;
