@@ -10,7 +10,7 @@ import { getHours } from "date-fns";
 */
 
 interface AvailabilityDisplayCalendarProps {
-  usersWithAvailability: UsersWithAvailability
+  usersWithAvailability: UsersWithAvailability;
 }
 
 // Generate all 24 hour labels (0 → 23)
@@ -29,15 +29,23 @@ function formatHour(hour: number): string {
 }
 
 export default function AvailabilityDisplayCalendar({
-  usersWithAvailability
+  usersWithAvailability,
 }: AvailabilityDisplayCalendarProps) {
-  const firstUser = usersWithAvailability[0];
-  const timeSlot = firstUser.timeSlot[0];
+  const firstUser = usersWithAvailability[1];
+  const timeSlots = firstUser.timeSlot;
   /* TODO: Remove this console log */
-  console.log('User Time Slot:', timeSlot);
-  console.log('Start hour from date-fns: ', getHours(new Date(timeSlot.start_time)));
-  console.log('Start hour from js', new Date(timeSlot.start_time).getHours() * 12 + 1);
-  console.log('Minutes: ', new Date(timeSlot.end_time).getMinutes());
+  console.log("Individual Local Times");
+  timeSlots.forEach((slot, i) => {
+    console.log(
+      `Slot ${i}: `,
+      new Date(slot.start_time).getHours() +
+        ":" +
+        new Date(slot.start_time).getMinutes(),
+      new Date(slot.end_time).getHours() +
+        ":" +
+        new Date(slot.end_time).getMinutes(),
+    );
+  });
   return (
     /* Wrapper that sets the containers width */
     <div className="w-full overflow-x-auto">
@@ -45,22 +53,35 @@ export default function AvailabilityDisplayCalendar({
       <div className="min-w-[2200px]">
         {/* Scrollable Timeline Grid */}
         <div
-          className="h-[250px] grid bg-muted rounded-t-md border border-b-0 border-border"
+          className="grid bg-muted rounded-t-md border border-b-0 border-border"
           style={{
             gridTemplateColumns: `repeat(${TOTAL_COLS}, 1fr)`,
+            gridTemplateRows: `repeat(${usersWithAvailability.length}, 150px)`,
           }}
         >
           {/* Start Col = (Hour * 12 + 1) + (min / 5) round up in case minutes are not divisible by 5 */}
           {/* End Col = (Hour * 12 + 1) + (min / 5 )round up in case minutes are not divisible by 5 */}
-          <div 
-            className="bg-red-500 rounded-md"
-            style={{
-              gridRow: 1, // Ensures the block perfectly aligns on the single grid row
-              gridColumnStart: (new Date(timeSlot.start_time).getHours() * SLOTS_PER_HOUR + 1) + (new Date(timeSlot.start_time).getMinutes() % 5),
-              gridColumnEnd: (new Date(timeSlot.end_time).getHours() * SLOTS_PER_HOUR + 1) + (new Date(timeSlot.end_time).getMinutes())
-            }}
-          >
-          </div>
+          {usersWithAvailability.map((user, i) =>
+            user.timeSlot.map((slot) => {
+              return (
+                <div
+                  className="bg-red-500"
+                  key={slot.id}
+                  style={{
+                    gridRow: i + 1, // Determines row
+                    gridColumnStart:
+                      new Date(slot.start_time).getHours() * SLOTS_PER_HOUR +
+                      1 +
+                      new Date(slot.start_time).getMinutes() / 5,
+                    gridColumnEnd:
+                      new Date(slot.end_time).getHours() * SLOTS_PER_HOUR +
+                      1 +
+                      new Date(slot.end_time).getMinutes() / 5,
+                  }}
+                ></div>
+              );
+            }),
+          )}
           {/* Hour divider lines inside the grid */}
           {/*HOURS.map((hour) => (
             <div
@@ -81,13 +102,19 @@ export default function AvailabilityDisplayCalendar({
           style={{ gridTemplateColumns: "repeat(24, 1fr)" }}
         >
           {HOURS.map((hour) => (
-            <div key={`time-cell-${hour}`} className="relative border-l border-transparent">
+            <div
+              key={`time-cell-${hour}`}
+              className="relative border-l border-transparent"
+            >
               {/* Hour Label - centered on the left edge of its cell */}
               <span
                 className="absolute top-1/2 left-0 select-none text-[0.625rem] font-medium text-muted-foreground whitespace-nowrap leading-none px-[2px]"
                 style={{
                   // Align the first item to the left, center all others exactly over the grid line
-                  transform: hour === 0 ? "translate(0%, -50%)" : "translate(-50%, -50%)",
+                  transform:
+                    hour === 0
+                      ? "translate(0%, -50%)"
+                      : "translate(-50%, -50%)",
                   fontFamily: "var(--font-accent)",
                 }}
               >
