@@ -1,7 +1,7 @@
 "use client";
 
-import { Tables }  from "@/database.types";
 import { UsersWithAvailability } from "./types";
+import { getHours } from "date-fns";
 
 /*
   -- 5 Min Grids --
@@ -31,6 +31,13 @@ function formatHour(hour: number): string {
 export default function AvailabilityDisplayCalendar({
   usersWithAvailability
 }: AvailabilityDisplayCalendarProps) {
+  const firstUser = usersWithAvailability[0];
+  const timeSlot = firstUser.timeSlot[0];
+  /* TODO: Remove this console log */
+  console.log('User Time Slot:', timeSlot);
+  console.log('Start hour from date-fns: ', getHours(new Date(timeSlot.start_time)));
+  console.log('Start hour from js', new Date(timeSlot.start_time).getHours() * 12 + 1);
+  console.log('Minutes: ', new Date(timeSlot.end_time).getMinutes());
   return (
     /* Wrapper that sets the containers width */
     <div className="w-full overflow-x-auto">
@@ -43,9 +50,17 @@ export default function AvailabilityDisplayCalendar({
             gridTemplateColumns: `repeat(${TOTAL_COLS}, 1fr)`,
           }}
         >
-          {/* Start Col = (Hour * 12) + (min / 5) round up */}
-          {/* End Col = (Hour * 12) + (min / 5 )round up  */}
-          <div className="col-start-1 col-end-13 bg-red-500"></div>
+          {/* Start Col = (Hour * 12 + 1) + (min / 5) round up in case minutes are not divisible by 5 */}
+          {/* End Col = (Hour * 12 + 1) + (min / 5 )round up in case minutes are not divisible by 5 */}
+          <div 
+            className="bg-red-500 rounded-md"
+            style={{
+              gridRow: 1, // Ensures the block perfectly aligns on the single grid row
+              gridColumnStart: (new Date(timeSlot.start_time).getHours() * SLOTS_PER_HOUR + 1) + (new Date(timeSlot.start_time).getMinutes() % 5),
+              gridColumnEnd: (new Date(timeSlot.end_time).getHours() * SLOTS_PER_HOUR + 1) + (new Date(timeSlot.end_time).getMinutes())
+            }}
+          >
+          </div>
           {/* Hour divider lines inside the grid */}
           {/*HOURS.map((hour) => (
             <div
