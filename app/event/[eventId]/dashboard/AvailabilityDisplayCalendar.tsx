@@ -1,6 +1,6 @@
 "use client";
 
-import { UsersWithAvailability } from "./types";
+import { UsersWithAvailability, EventSlots } from "./types";
 import { getHours } from "date-fns";
 
 /*
@@ -11,6 +11,7 @@ import { getHours } from "date-fns";
 
 interface AvailabilityDisplayCalendarProps {
   usersWithAvailability: UsersWithAvailability;
+  eventSlots: EventSlots;
 }
 
 // Generate all 24 hour labels (0 → 23)
@@ -30,6 +31,7 @@ function formatHour(hour: number): string {
 
 export default function AvailabilityDisplayCalendar({
   usersWithAvailability,
+  eventSlots,
 }: AvailabilityDisplayCalendarProps) {
   const firstUser = usersWithAvailability[1];
   const timeSlots = firstUser.timeSlot;
@@ -51,6 +53,44 @@ export default function AvailabilityDisplayCalendar({
     <div className="w-full overflow-x-auto">
       {/* Inner container: min-width forces the timeline to be scrollable */}
       <div className="min-w-[2200px]">
+        {/* ── Event's Time Slots Row ── */}
+        <div
+          className="relative border border-b-0 border-border bg-card"
+          style={{ height: "50px" }}
+        >
+          {/* TODO: Split this into its own component */}
+          {/* Sticky "Event" label */}
+          <div className="sticky left-0 z-10 w-0 h-full flex items-start pt-2 pl-2 pointer-events-none">
+            <span className="pointer-events-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold font-main bg-background/80 backdrop-blur-sm border border-border shadow-sm text-muted-foreground whitespace-nowrap select-none">
+              Event
+            </span>
+          </div>
+
+          {/* Event slot bars */}
+          <div
+            className="absolute inset-0 grid"
+            style={{ gridTemplateColumns: `repeat(${TOTAL_COLS}, 1fr)` }}
+          >
+            {eventSlots.map((slot) => (
+              <div
+                key={slot.id}
+                className="bg-primary/30 border-l border-primary"
+                style={{
+                  gridColumnStart:
+                    new Date(slot.start_time).getHours() * SLOTS_PER_HOUR +
+                    1 +
+                    new Date(slot.start_time).getMinutes() / 5,
+                  gridColumnEnd:
+                    new Date(slot.end_time).getHours() * SLOTS_PER_HOUR +
+                    1 +
+                    new Date(slot.end_time).getMinutes() / 5,
+                  gridRow: 1,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
         {/* ── User rows ── */}
         {usersWithAvailability.map((user, i) => (
           <div
@@ -60,12 +100,8 @@ export default function AvailabilityDisplayCalendar({
           >
             {/* TODO: Use only span */}
             {/* Sticky name badge — stays pinned to the left edge while scrolling */}
-            <div
-              className="sticky left-0 z-10 w-0 h-full flex items-start pt-2 pl-2 pointer-events-none"
-            >
-              <span
-                className="pointer-events-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold font-main bg-background/80 backdrop-blur-sm border border-border shadow-sm text-foreground whitespace-nowrap select-none"
-              >
+            <div className="sticky left-0 z-10 w-0 h-full flex items-start pt-2 pl-2 pointer-events-none">
+              <span className="pointer-events-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold font-main bg-background/80 backdrop-blur-sm border border-border shadow-sm text-foreground whitespace-nowrap select-none">
                 {user.first_name} {user.last_name}
               </span>
             </div>
