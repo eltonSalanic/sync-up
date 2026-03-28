@@ -21,7 +21,17 @@ export default async function EventDashboardPage({
     notFound();
   }
 
-  // 2. Fetch Availability Results
+  // 2. Fetch Event Slots
+  const { data: eventSlots, error: eventSlotsError } = await supabase
+    .from("event_days")
+    .select("id, start_time, end_time")
+    .eq("event_id", eventId);
+
+  if (eventSlotsError) {
+    console.error("Error fetching event slots:", eventSlotsError);
+  }
+
+  // 3. Fetch Availability Results
   const { data: usersWithAvailability, error: availabilityError } =
     await supabase
       .from("users")
@@ -69,6 +79,7 @@ export default async function EventDashboardPage({
       </div>
       <AvailabilityDisplayCalendar
         usersWithAvailability={usersWithAvailability}
+        eventSlots={eventSlots ?? []}
       />
       {/* Heatmap Placeholder */}
       {/*
