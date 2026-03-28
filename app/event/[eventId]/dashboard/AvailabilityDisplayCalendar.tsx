@@ -47,28 +47,42 @@ export default function AvailabilityDisplayCalendar({
     );
   });
   return (
-    /* Wrapper that sets the containers width */
+    /* Wrapper: overflow-x-auto enables horizontal scrolling */
     <div className="w-full overflow-x-auto">
-      {/* Sets the width of the timeline. Width determines width of time grid */}
+      {/* Inner container: min-width forces the timeline to be scrollable */}
       <div className="min-w-[2200px]">
-        {/* Scrollable Timeline Grid */}
-        <div
-          className="grid bg-muted rounded-t-md border border-b-0 border-border"
-          style={{
-            gridTemplateColumns: `repeat(${TOTAL_COLS}, 1fr)`,
-            gridTemplateRows: `repeat(${usersWithAvailability.length}, 150px)`,
-          }}
-        >
-          {/* Start Col = (Hour * 12 + 1) + (min / 5) round up in case minutes are not divisible by 5 */}
-          {/* End Col = (Hour * 12 + 1) + (min / 5 )round up in case minutes are not divisible by 5 */}
-          {usersWithAvailability.map((user, i) =>
-            user.timeSlot.map((slot) => {
-              return (
+        {/* ── User rows ── */}
+        {usersWithAvailability.map((user, i) => (
+          <div
+            key={user.id}
+            className="relative border border-b-0 border-border bg-muted"
+            style={{ height: "150px" }}
+          >
+            {/* Sticky name badge — stays pinned to the left edge while scrolling */}
+            <div
+              className="sticky left-0 z-10 h-full flex items-start pt-2 pl-2 pointer-events-none"
+              style={{ width: 0 }} // zero-width so it doesn't push grid content
+            >
+              <span
+                className="pointer-events-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold bg-background/80 backdrop-blur-sm border border-border shadow-sm text-foreground whitespace-nowrap select-none"
+                style={{ fontFamily: "var(--font-main)" }}
+              >
+                {user.first_name} {user.last_name}
+              </span>
+            </div>
+
+            {/* Availability slots on grid for this user */}
+            <div
+              className="absolute inset-0 grid"
+              style={{
+                gridTemplateColumns: `repeat(${TOTAL_COLS}, 1fr)`,
+              }}
+            >
+              {user.timeSlot.map((slot) => (
                 <div
                   className="bg-red-500"
                   key={slot.id}
                   style={{
-                    gridRow: i + 1, // Determines row
                     gridColumnStart:
                       new Date(slot.start_time).getHours() * SLOTS_PER_HOUR +
                       1 +
@@ -77,24 +91,16 @@ export default function AvailabilityDisplayCalendar({
                       new Date(slot.end_time).getHours() * SLOTS_PER_HOUR +
                       1 +
                       new Date(slot.end_time).getMinutes() / 5,
+                    gridRow: 1,
                   }}
-                ></div>
-              );
-            }),
-          )}
-          {/* Hour divider lines inside the grid */}
-          {/*HOURS.map((hour) => (
-            <div
-              key={`divider-${hour}`}
-              // Border on the right, except last hour
-              className={`opacity-50 ${hour < 23 ? "border-r border-border" : ""}`}
-              style={{
-                gridColumn: `${hour * SLOTS_PER_HOUR + 1} / span ${SLOTS_PER_HOUR}`,
-                gridRow: "1",
-              }}
-            />
-          ))*/}
-        </div>
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* Closing border for the last row */}
+        <div className="border-b border-l border-r border-border rounded-b-none" />
 
         {/* Times Row (24-column grid) */}
         <div
