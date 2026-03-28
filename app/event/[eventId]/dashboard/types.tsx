@@ -22,3 +22,10 @@ const usersWithAvailabilityQuery = supabase
 export type UsersWithAvailability = QueryData<
   typeof usersWithAvailabilityQuery
 >;
+
+const eventSlotsQuery = supabase
+  .from("event_days")
+  .select("id, start_time, end_time")
+  .eq("event_id", "");
+
+export type EventSlots = QueryData<typeof eventSlotsQuery>;
