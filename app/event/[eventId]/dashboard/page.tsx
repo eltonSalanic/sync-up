@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import AvailabilityDisplayCalendar from "./AvailabilityDisplayCalendar";
+import ConsensusWindowPanel from "./ConsensusWindow";
 
 export default async function EventDashboardPage({
   params,
@@ -80,6 +81,10 @@ export default async function EventDashboardPage({
       <AvailabilityDisplayCalendar
         usersWithAvailability={usersWithAvailability}
         eventSlots={eventSlots ?? []}
+      />
+      <ConsensusWindowPanel
+        eventSlots={eventSlots ?? []}
+        usersWithAvailability={usersWithAvailability ?? []}
       />
       {/* Heatmap Placeholder */}
       {/*
