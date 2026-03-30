@@ -1,4 +1,4 @@
-import { ConsensusWindow } from "./utils";
+import { ConsensusWindow, formatDurationToWords } from "./utils";
 import WindowItem from "./WindowItem";
 
 interface WindowListProps {
@@ -10,7 +10,8 @@ export default function WindowList({ windows, minDuration }: WindowListProps) {
   if (windows.length === 0) {
     return (
       <p className="text-sm text-destructive font-main py-1">
-        No windows found where everyone is free for {minDuration} min.
+        No windows found where everyone is free for{" "}
+        {formatDurationToWords(minDuration)}.
       </p>
     );
   }
