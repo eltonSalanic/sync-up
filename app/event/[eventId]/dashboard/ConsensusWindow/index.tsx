@@ -17,7 +17,8 @@ export default function ConsensusWindowPanel({
 }: ConsensusWindowPanelProps) {
   // Derive slider bounds from event slot durations
   const { defaultDuration, maxDuration } = useMemo(() => {
-    if (eventSlots.length === 0) return { defaultDuration: 30, maxDuration: 60 };
+    if (eventSlots.length === 0)
+      return { defaultDuration: 30, maxDuration: 60 };
 
     const durations = eventSlots.map(slotDurationMins);
     const smallest = Math.min(...durations);
@@ -48,7 +49,8 @@ export default function ConsensusWindowPanel({
           Overlapping Availability
         </h3>
         <p className="text-xs text-muted-foreground font-main">
-          Windows where everyone who responded is free simultaneously
+          See when everyone is available. You can filter by minimum time using
+          the slider below!
         </p>
       </div>
 

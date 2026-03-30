@@ -9,7 +9,7 @@ interface WindowListProps {
 export default function WindowList({ windows, minDuration }: WindowListProps) {
   if (windows.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground font-main py-1">
+      <p className="text-sm text-destructive font-main py-1">
         No windows found where everyone is free for {minDuration} min.
       </p>
     );

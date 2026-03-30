@@ -1,3 +1,13 @@
+/** Converts a total-minutes value into a readable label, e.g. 90 → "1 Hour 30 mins" */
+function formatDurationToWords(mins: number): string {
+  const hours = Math.floor(mins / 60);
+  const remaining = mins % 60;
+
+  if (hours === 0) return `${mins} min`;
+  if (remaining === 0) return `${hours} Hour${hours !== 1 ? "s" : ""}`;
+  return `${hours} Hour${hours !== 1 ? "s" : ""} ${remaining} min`;
+}
+
 interface DurationSliderProps {
   minDuration: number;
   maxDuration: number;
@@ -16,7 +26,7 @@ export default function DurationSlider({
           Minimum duration
         </span>
         <span className="text-xs font-semibold font-main text-foreground tabular-nums">
-          {minDuration} min
+          {formatDurationToWords(minDuration)}
         </span>
       </div>
       <input
