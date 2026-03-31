@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Poppins, DM_Sans, Roboto_Mono} from "next/font/google";
+import { Poppins, DM_Sans, Roboto_Mono } from "next/font/google";
 
-import { ThemeProvider } from "@/components/theme-provider"
-import { Header } from "@/components/layouts/header"
+import { ThemeProvider } from "@/components/theme-provider";
+import { Header } from "@/components/layouts/header";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -39,14 +39,14 @@ export default function RootLayout({
         className={`flex flex-col min-h-screen ${poppins.variable} ${dmSans.variable} ${robotoMono.variable} antialiased bg-background`}
       >
         <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-            {children}
-          </ThemeProvider>
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

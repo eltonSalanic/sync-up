@@ -31,13 +31,16 @@ export default async function AvailabilityPage({
   }
 
   const eventDays = (event.event_days ?? []).sort(
-    (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+    (a, b) =>
+      new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
   );
 
   if (!eventDays.length) {
     return (
       <div className="w-full flex-1 flex flex-col items-center justify-center p-8">
-        <p className="text-muted-foreground">This event has no scheduled days yet.</p>
+        <p className="text-muted-foreground">
+          This event has no scheduled days yet.
+        </p>
       </div>
     );
   }

@@ -50,7 +50,7 @@ export default function Home() {
 
         <div className="mt-8 flex flex-col sm:flex-row gap-4 items-center">
           <Link
-            href="/create"
+            href="/create/anon-user"
             className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold text-lg hover:bg-primary/90 transition-all font-secondary shadow-[0_0_40px_-10px_rgba(0,0,0,0.3)] shadow-primary/40 hover:shadow-primary/60 transform hover:-translate-y-1"
           >
             Create Event <ArrowRight className="w-5 h-5 ml-1" />

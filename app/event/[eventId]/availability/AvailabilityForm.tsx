@@ -21,9 +21,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  submitAvailability,
-} from "@/app/actions/availability";
+import { submitAvailability } from "@/app/actions/availability";
 import { AvailabilitySlot } from "@/app/dtos/event.dto";
 import { useRouter } from "next/navigation";
 import {
@@ -34,7 +32,6 @@ import {
   generateTimeOptions,
 } from "./timeHelpers";
 import { AvailabilityFormProps, DaySlot } from "./types";
-
 
 export default function AvailabilityForm({
   eventId,
@@ -255,7 +252,11 @@ export default function AvailabilityForm({
                   </CardTitle>
                   <CardDescription>
                     Event window:{" "}
-                    {formatTimeRange(day.start_time, day.end_time, userTimezone)}
+                    {formatTimeRange(
+                      day.start_time,
+                      day.end_time,
+                      userTimezone,
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3 flex-1">

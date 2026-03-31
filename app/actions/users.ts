@@ -8,7 +8,7 @@ import { Tables } from "@/database.types";
 
 export async function createAnonUser(
   formData: unknown,
-  eventId?: string
+  eventId?: string,
 ): Promise<ActionResult<Tables<"users">>> {
   // Validate input with Zod
   const validationResult = AnonUserSchema.safeParse(formData);
@@ -27,7 +27,7 @@ export async function createAnonUser(
 
     const adminSupabase = createAdminClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_SUPABASE_SECRET_KEY!
+      process.env.NEXT_SUPABASE_SECRET_KEY!,
     );
 
     // 1. Create the anonymous Supabase Auth user
@@ -67,7 +67,8 @@ export async function createAnonUser(
       console.error("Failed to insert user row:", insertError?.message);
       return {
         success: false,
-        error: "Account created but we couldn't set up your profile. Please try again.",
+        error:
+          "Account created but we couldn't set up your profile. Please try again.",
       };
     }
 
@@ -81,7 +82,8 @@ export async function createAnonUser(
         console.error("Failed to link user to event:", eventUserError.message);
         return {
           success: false,
-          error: "Account created but we couldn't link you to the event. Please try again.",
+          error:
+            "Account created but we couldn't link you to the event. Please try again.",
         };
       }
     }

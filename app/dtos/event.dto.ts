@@ -4,7 +4,9 @@ import { z } from "zod";
 export const CreateEventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().min(1, "Description is required"),
-  maxPeople: z.number("Must be at least 1 person").min(1, "Must be at least 1 person"),
+  maxPeople: z
+    .number("Must be at least 1 person")
+    .min(1, "Must be at least 1 person"),
   availableDatesWithTimes: z.array(
     z
       .object({
@@ -28,4 +30,4 @@ export const AvailabilitySlotSchema = z.object({
   eventDayId: z.number().int().positive(),
 });
 
-export type AvailabilitySlot = z.infer<typeof AvailabilitySlotSchema>
+export type AvailabilitySlot = z.infer<typeof AvailabilitySlotSchema>;

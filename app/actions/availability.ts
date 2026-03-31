@@ -11,14 +11,14 @@ const SubmitAvailabilitySchema = z.array(AvailabilitySlotSchema);
 
 export async function submitAvailability(
   eventId: string,
-  rawSlots: unknown
+  rawSlots: unknown,
 ): Promise<ActionResult<void>> {
   // Zod validation
   const validationResult = SubmitAvailabilitySchema.safeParse(rawSlots);
   if (!validationResult.success) {
     return { success: false, error: "Invalid availability data submitted." };
   }
-  
+
   // Ensure at least one time slot is selected
   const slots = validationResult.data;
   if (!slots.length) {
@@ -27,9 +27,15 @@ export async function submitAvailability(
 
   // Ensure anon user is authenticated
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return { success: false, error: "You must be signed in to submit availability." };
+    return {
+      success: false,
+      error: "You must be signed in to submit availability.",
+    };
   }
 
   // Map the validated DTO payload to the strict Supabase insert type
@@ -40,13 +46,14 @@ export async function submitAvailability(
     end_time: slot.endTime,
   }));
 
-  const { error } = await supabase
-    .from("user_event_availability")
-    .insert(rows);
+  const { error } = await supabase.from("user_event_availability").insert(rows);
 
   if (error) {
     console.error("Failed to insert availability:", error.message);
-    return { success: false, error: "Failed to save your availability. Please try again." };
+    return {
+      success: false,
+      error: "Failed to save your availability. Please try again.",
+    };
   }
 
   return { success: true, data: undefined };

@@ -7,7 +7,6 @@ export default async function CreateEventPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-
   return (
     <div className="">
       <p>Add in your event details here</p>

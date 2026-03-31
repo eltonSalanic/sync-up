@@ -1,12 +1,18 @@
 import "temporal-polyfill/global";
 
 /** Convert ISO UTC timestamp → Temporal.ZonedDateTime in the given IANA timezone */
-export function toZDT(isoString: string, timezone: string): Temporal.ZonedDateTime {
+export function toZDT(
+  isoString: string,
+  timezone: string,
+): Temporal.ZonedDateTime {
   return Temporal.Instant.from(isoString).toZonedDateTimeISO(timezone);
 }
 
 /** Get Temporal.PlainDate in the given timezone for Schedule-X selectedDate */
-export function toPlainDate(isoString: string, timezone: string): Temporal.PlainDate {
+export function toPlainDate(
+  isoString: string,
+  timezone: string,
+): Temporal.PlainDate {
   return Temporal.Instant.from(isoString)
     .toZonedDateTimeISO(timezone)
     .toPlainDate();
@@ -21,7 +27,11 @@ export function formatDayHeading(isoString: string, timezone: string): string {
   }).format(new Date(isoString));
 }
 
-export function formatTimeRange(start: string, end: string, timezone: string): string {
+export function formatTimeRange(
+  start: string,
+  end: string,
+  timezone: string,
+): string {
   const fmt = (iso: string) =>
     new Intl.DateTimeFormat("en-US", {
       hour: "numeric",

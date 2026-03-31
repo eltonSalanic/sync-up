@@ -27,7 +27,9 @@ export default async function CreateAnonUserPage({
     return (
       <div className="w-full flex-1 flex flex-col items-center justify-center p-8 gap-6 max-w-xl mx-auto">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">You&apos;re Invited! 🎉</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            You&apos;re Invited! 🎉
+          </h1>
           <p className="text-muted-foreground text-lg">
             Enter your details to join{" "}
             <span className="font-semibold text-foreground">{event.name}</span>.

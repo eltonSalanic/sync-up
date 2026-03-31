@@ -37,7 +37,10 @@ interface AnonUserFormProps {
   eventName?: string;
 }
 
-export default function AnonUserForm({ eventId, eventName }: AnonUserFormProps) {
+export default function AnonUserForm({
+  eventId,
+  eventName,
+}: AnonUserFormProps) {
   const router = useRouter();
   const isGuest = !!eventId;
   const [serverError, setServerError] = useState<string | null>(null);
@@ -78,7 +81,8 @@ export default function AnonUserForm({ eventId, eventName }: AnonUserFormProps) 
         <CardTitle>Your Info</CardTitle>
         {isGuest && eventName && (
           <CardDescription>
-            Joining <span className="font-medium text-foreground">{eventName}</span>
+            Joining{" "}
+            <span className="font-medium text-foreground">{eventName}</span>
           </CardDescription>
         )}
       </CardHeader>
@@ -137,8 +141,12 @@ export default function AnonUserForm({ eventId, eventName }: AnonUserFormProps) 
             onClick={handleSubmit(onSubmit)}
           >
             {isSubmitting
-              ? isGuest ? "Joining..." : "Submitting..."
-              : isGuest ? "Join Event" : "Continue"}
+              ? isGuest
+                ? "Joining..."
+                : "Submitting..."
+              : isGuest
+                ? "Join Event"
+                : "Continue"}
           </Button>
         </Field>
       </CardFooter>

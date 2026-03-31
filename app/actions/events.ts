@@ -14,7 +14,7 @@ function toISO(date: Date, time: string): string {
 }
 
 export async function createEvent(
-  formData: unknown
+  formData: unknown,
 ): Promise<ActionResult<Tables<"events">>> {
   const validationResult = CreateEventSchema.safeParse(formData);
 
@@ -47,7 +47,7 @@ export async function createEvent(
       description: event.description,
       maxMembers: event.maxPeople,
       creator_user_id: user.id,
-      pin: event.pin
+      pin: event.pin,
     })
     .select()
     .single();
