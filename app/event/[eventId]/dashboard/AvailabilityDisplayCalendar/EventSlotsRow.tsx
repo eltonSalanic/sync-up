@@ -23,9 +23,9 @@ export default function EventSlotsRow({
     >
       {/* TODO: Split this into its own component */}
       {/* Sticky "Event" label */}
-      <div className="sticky left-0 z-10 w-0 h-full flex items-start pt-2 pl-2 pointer-events-none">
-        <span className="pointer-events-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold font-main bg-background/80 backdrop-blur-sm border border-border shadow-sm text-muted-foreground whitespace-nowrap select-none">
-          Event
+      <div className="sticky left-0 z-10 w-0 pl-2 h-full flex items-center pointer-events-none">
+        <span className="pointer-events-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold font-main backdrop-blur-sm text-foreground whitespace-nowrap select-none">
+          Event Time Slots
         </span>
       </div>
 

@@ -108,7 +108,7 @@ export default function AvailabilityDisplayCalendar({
       />
 
       {/* Wrapper: overflow-x-auto enables horizontal scrolling */}
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto pb-2">
         {/* Inner container: min-width forces the timeline to be scrollable */}
         <div style={{ minWidth: `${Math.round(totalCols * PX_PER_COL)}px` }}>
           <EventSlotsRow
