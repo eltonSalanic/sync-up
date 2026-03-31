@@ -17,7 +17,7 @@ export default function DayNavigation({
   onNext,
 }: DayNavigationProps) {
   return (
-    <div className="flex items-center justify-between px-1">
+    <div className="flex items-center justify-between px-1 pt-2">
       <button
         className="inline-flex items-center justify-center rounded-md p-1.5 transition-colors hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
         onClick={onPrev}
