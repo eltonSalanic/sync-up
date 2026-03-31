@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { createAdminClient } from "@/lib/supabase/admin";
 import AvailabilityDisplayCalendar from "./AvailabilityDisplayCalendar";
 import ConsensusWindowPanel from "./ConsensusWindow";
-import { Calendar, Clock } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, Clock, Info } from "lucide-react";
 
 export default async function EventDashboardPage({
   params,
@@ -33,7 +35,7 @@ export default async function EventDashboardPage({
     console.error("Error fetching event slots:", eventSlotsError);
   }
 
-  // 3. Fetch Availability Results
+  // 3. Fetch Availability Results (only users who submitted slots)
   const { data: usersWithAvailability, error: availabilityError } =
     await supabase
       .from("users")
@@ -56,7 +58,16 @@ export default async function EventDashboardPage({
     return null;
   }
 
-  const respondentCount = usersWithAvailability?.length ?? 0;
+  // 4. Fetch total member count using admin client (safe since PIN approach will be used)
+  const supabaseAdmin = createAdminClient();
+  const { count: totalJoined } = await supabaseAdmin
+    .from("event_users")
+    .select("id", { count: "exact", head: true })
+    .eq("event_id", eventId);
+
+  const submittedCount = usersWithAvailability?.length ?? 0;
+  const joinedCount = totalJoined ?? submittedCount;
+  const ghostCount = joinedCount - submittedCount;
 
   return (
     <div className="w-full flex-1 flex flex-col gap-8 p-8 max-w-4xl mx-auto">
@@ -69,10 +80,34 @@ export default async function EventDashboardPage({
           {event.name}
         </h1>
         <p className="text-sm text-muted-foreground font-main">
-          {respondentCount}{" "}
-          {respondentCount === 1 ? "person has" : "people have"} responded
+          {joinedCount} {joinedCount === 1 ? "person" : "people"} joined
+          {" · "}
+          {submittedCount} {submittedCount === 1 ? "has" : "have"} added
+          availability
         </p>
       </div>
+
+      {/* Ghost user warning */}
+      {ghostCount > 0 && (
+        <Card className="border-amber-500/30 bg-amber-500/10 shadow-none py-4 gap-0">
+          <CardContent className="flex gap-3 px-4 py-0">
+            <Info className="size-4 text-amber-500 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-sm font-semibold font-main text-foreground">
+                {ghostCount} {ghostCount === 1 ? "person" : "people"} joined
+                without adding availability
+              </p>
+              <p className="text-xs text-muted-foreground font-main leading-relaxed">
+                Since this app doesn&apos;t require an account, anyone who
+                closed the tab after joining won&apos;t be able to come back and
+                add their times. If this was accidental, they can re-join using
+                the event link. Otherwise, you can remove them from the event to
+                keep results accurate.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Availability Calendar Section */}
       <section className="flex flex-col gap-3">
