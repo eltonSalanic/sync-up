@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import AvailabilityDisplayCalendar from "./AvailabilityDisplayCalendar";
 import ConsensusWindowPanel from "./ConsensusWindow";
+import { Calendar, Clock } from "lucide-react";
 
 export default async function EventDashboardPage({
   params,
@@ -55,48 +56,53 @@ export default async function EventDashboardPage({
     return null;
   }
 
-  console.log("Slots", usersWithAvailability);
-
-  /*// Extract unique users who have responded
-  const uniqueResponders = new Map<string, string>();
-  
-  if (availabilityResults) {
-    availabilityResults.forEach((row) => {
-      // Supabase join returns an array or object depending on relation, users is 1:many from this perspective
-      const user = row.users as unknown as { first_name: string; last_name: string } | null;
-      if (user) {
-        uniqueResponders.set(row.user_id, `${user.first_name} ${user.last_name}`);
-      }
-    });
-  }*/
+  const respondentCount = usersWithAvailability?.length ?? 0;
 
   return (
-    <div className="w-full h-full flex-1 flex flex-col p-8 max-w-4xl mx-auto space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">
-          {event.name} - Dashboard
+    <div className="w-full flex-1 flex flex-col gap-8 p-8 max-w-4xl mx-auto">
+      {/* Page Header */}
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-semibold font-main uppercase tracking-widest text-muted-foreground">
+          Dashboard
+        </p>
+        <h1 className="text-2xl font-bold font-main text-foreground tracking-tight">
+          {event.name}
         </h1>
-        <p className="text-muted-foreground">{event.description}</p>
+        <p className="text-sm text-muted-foreground font-main">
+          {respondentCount}{" "}
+          {respondentCount === 1 ? "person has" : "people have"} responded
+        </p>
       </div>
-      <AvailabilityDisplayCalendar
-        usersWithAvailability={usersWithAvailability}
-        eventSlots={eventSlots ?? []}
-      />
-      <ConsensusWindowPanel
-        eventSlots={eventSlots ?? []}
-        usersWithAvailability={usersWithAvailability ?? []}
-      />
-      {/* Heatmap Placeholder */}
-      {/*
-        <Card>
-          <CardHeader>
-            <CardTitle>Availability Heatmap</CardTitle>
-            <CardDescription>Best times to meet</CardDescription>
-          </CardHeader>
-          <CardContent className="h-48 flex items-center justify-center border-2 border-dashed border-border rounded-md bg-muted/20">
-            <p className="text-muted-foreground text-sm">Heatmap calendar coming soon...</p>
-          </CardContent>
-        </Card>*/}
+
+      {/* Availability Calendar Section */}
+      <section className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <Calendar className="size-4 text-primary" />
+          <h2 className="text-sm font-semibold font-main text-foreground">
+            Availability
+          </h2>
+        </div>
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <AvailabilityDisplayCalendar
+            usersWithAvailability={usersWithAvailability}
+            eventSlots={eventSlots ?? []}
+          />
+        </div>
+      </section>
+
+      {/* Best Times Section */}
+      <section className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <Clock className="size-4 text-primary" />
+          <h2 className="text-sm font-semibold font-main text-foreground">
+            Best Times
+          </h2>
+        </div>
+        <ConsensusWindowPanel
+          eventSlots={eventSlots ?? []}
+          usersWithAvailability={usersWithAvailability ?? []}
+        />
+      </section>
     </div>
   );
 }
