@@ -1,20 +1,23 @@
 import { UsersWithAvailability } from "../types";
 import { toCol } from "./utils";
+import GridLines from "./GridLines";
 
 interface UserRowProps {
   user: UsersWithAvailability[number];
   totalCols: number;
+  totalHours: number;
   activeMidnight: number;
 }
 
 export default function UserRow({
   user,
   totalCols,
+  totalHours,
   activeMidnight,
 }: UserRowProps) {
   return (
     <div
-      className="relative border border-b-0 border-border bg-muted"
+      className="relative border-t border-b-0 border-border bg-card"
       style={{ height: "150px" }}
     >
       {/* TODO: Use only span */}
@@ -25,6 +28,8 @@ export default function UserRow({
         </span>
       </div>
 
+      {/* Hour and 30-min guide lines */}
+      <GridLines totalHours={totalHours} />
       {/* Availability slots on grid for this user */}
       <div
         className="absolute inset-0 grid"
