@@ -1,15 +1,18 @@
 import { EventSlots } from "../types";
 import { toCol } from "./utils";
+import GridLines from "./GridLines";
 
 interface EventSlotsRowProps {
   activeDayEventSlots: EventSlots;
   totalCols: number;
+  totalHours: number;
   activeMidnight: number;
 }
 
 export default function EventSlotsRow({
   activeDayEventSlots,
   totalCols,
+  totalHours,
   activeMidnight,
 }: EventSlotsRowProps) {
   return (
@@ -25,6 +28,9 @@ export default function EventSlotsRow({
           Event
         </span>
       </div>
+
+      {/* Hour and 30-min guide lines */}
+      <GridLines totalHours={totalHours} />
 
       {/* Event slot bars */}
       <div

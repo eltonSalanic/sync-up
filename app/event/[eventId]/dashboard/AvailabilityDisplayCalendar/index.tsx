@@ -114,6 +114,7 @@ export default function AvailabilityDisplayCalendar({
           <EventSlotsRow
             activeDayEventSlots={activeDayEventSlots}
             totalCols={totalCols}
+            totalHours={totalHours}
             activeMidnight={activeMidnight}
           />
 
@@ -123,6 +124,7 @@ export default function AvailabilityDisplayCalendar({
               key={user.id}
               user={user}
               totalCols={totalCols}
+              totalHours={totalHours}
               activeMidnight={activeMidnight}
             />
           ))}
