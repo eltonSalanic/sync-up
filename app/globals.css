@@ -161,3 +161,24 @@
     @apply text-lg;
   }
 }
+
+/* Schedule-X Calendar Bug Fixes */
+.sx__time-grid-event-inner {
+  overflow-y: auto !important;
+  word-break: break-word !important;
+  padding: 4px !important;
+}
+
+.sx__time-grid-event-time {
+  padding-top: 5px !important;
+}
+
+.sx__time-grid-event .sx__time-grid-event-title,
+.sx__time-grid-event .sx__title-and-time-compact .sx__time-grid-event-title,
+.sx__time-grid-event .sx__title-and-time-compact .sx__time-grid-event-time,
+.sx__time-grid-event .sx__time-grid-event-time {
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow: visible !important;
+  line-height: 1.2 !important;
+}
