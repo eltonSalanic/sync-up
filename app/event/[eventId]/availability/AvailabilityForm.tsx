@@ -211,7 +211,7 @@ export default function AvailabilityForm({
     if (!result?.success) {
       setServerError(result?.error ?? "Something went wrong.");
     } else {
-      router.push("/");
+      router.push("/?success=true");
     }
   };
 

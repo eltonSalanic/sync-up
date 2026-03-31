@@ -6,10 +6,16 @@ import {
   CheckCircle,
   ArrowRight,
 } from "lucide-react";
+import { Suspense } from "react";
+import { SuccessBanner } from "@/components/SuccessBanner";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center overflow-hidden">
+    <div className="relative min-h-screen bg-background text-foreground flex flex-col items-center overflow-hidden relative">
+      <Suspense fallback={null}>
+        <SuccessBanner />
+      </Suspense>
+
       {/* Background decoration */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] -z-10 pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/20 rounded-full blur-[120px] -z-10 pointer-events-none" />
