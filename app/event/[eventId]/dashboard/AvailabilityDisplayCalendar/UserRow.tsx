@@ -39,7 +39,7 @@ export default function UserRow({
       >
         {user.timeSlot.map((slot) => (
           <div
-            className="bg-red-500"
+            className="bg-chart-3/90 border-l-6 rounded-sm border-chart-2"
             key={slot.id}
             style={{
               gridColumnStart: toCol(slot.start_time, activeMidnight),

@@ -19,12 +19,12 @@ export default function EventSlotsRow({
     // Event's Time Slots Row
     <div
       className="relative border border-b-0 border-border bg-card"
-      style={{ height: "50px" }}
+      style={{ height: "20px" }}
     >
       {/* TODO: Split this into its own component */}
       {/* Sticky "Event" label */}
       <div className="sticky left-0 z-10 w-0 pl-2 h-full flex items-center pointer-events-none">
-        <span className="pointer-events-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold font-main backdrop-blur-sm text-foreground whitespace-nowrap select-none">
+        <span className="pointer-events-auto inline-flex items-center gap-1 rounded-md px-2 text-xs font-bold font-main bg-background text-foreground whitespace-nowrap select-none">
           Event Time Slots
         </span>
       </div>
@@ -40,7 +40,7 @@ export default function EventSlotsRow({
         {activeDayEventSlots.map((slot) => (
           <div
             key={slot.id}
-            className="bg-primary/30 border-l border-primary"
+            className="bg-primary border-l-4 border-chart-5/90 rounded-sm"
             style={{
               gridColumnStart: toCol(slot.start_time, activeMidnight),
               gridColumnEnd: toCol(slot.end_time, activeMidnight),
