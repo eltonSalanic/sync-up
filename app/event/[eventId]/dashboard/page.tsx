@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import PinForm from "./PinForm";
 import AvailabilityDisplayCalendar from "./AvailabilityDisplayCalendar";
 import ConsensusWindowPanel from "./ConsensusWindow";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,12 +23,12 @@ export default async function EventDashboardPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const supabase = createClient();
+  const supabaseAdmin = createAdminClient();
 
-  // 1. Fetch Event Info
-  const { data: event, error: eventError } = await supabase
+  // 1. Fetch Event Info (with PIN to check access)
+  const { data: event, error: eventError } = await supabaseAdmin
     .from("events")
-    .select("id, name, description")
+    .select("id, name, description, pin")
     .eq("id", eventId)
     .single();
 
@@ -35,8 +36,17 @@ export default async function EventDashboardPage({
     notFound();
   }
 
+  // Check PIN access
+  const cookieStore = await cookies();
+  const cookiePin = cookieStore.get(`dashboard_access_${eventId}`)?.value;
+  const hasAccess = !event.pin || event.pin === cookiePin; // Check if event has pin, or if cookie matches pin
+
+  if (!hasAccess) {
+    return <PinForm eventId={eventId} eventName={event.name} />;
+  }
+
   // 2. Fetch Event Slots
-  const { data: eventSlots, error: eventSlotsError } = await supabase
+  const { data: eventSlots, error: eventSlotsError } = await supabaseAdmin
     .from("event_days")
     .select("id, start_time, end_time")
     .eq("event_id", eventId);
@@ -47,7 +57,7 @@ export default async function EventDashboardPage({
 
   // 3. Fetch Availability Results (only users who submitted slots)
   const { data: usersWithAvailability, error: availabilityError } =
-    await supabase
+    await supabaseAdmin
       .from("users")
       .select(
         `
@@ -68,8 +78,7 @@ export default async function EventDashboardPage({
     return null;
   }
 
-  // 4. Fetch all members using admin client (safe since PIN approach will be used)
-  const supabaseAdmin = createAdminClient();
+  // 4. Fetch all members using admin client
   const { data: allEventUsers } = await supabaseAdmin
     .from("event_users")
     .select(
