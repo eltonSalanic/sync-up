@@ -4,7 +4,16 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import AvailabilityDisplayCalendar from "./AvailabilityDisplayCalendar";
 import ConsensusWindowPanel from "./ConsensusWindow";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Clock, Info } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Info,
+  Trash2,
+  Users,
+  CircleAlert,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default async function EventDashboardPage({
   params,
@@ -58,15 +67,25 @@ export default async function EventDashboardPage({
     return null;
   }
 
-  // 4. Fetch total member count using admin client (safe since PIN approach will be used)
+  // 4. Fetch all members using admin client (safe since PIN approach will be used)
   const supabaseAdmin = createAdminClient();
-  const { count: totalJoined } = await supabaseAdmin
+  const { data: allEventUsers } = await supabaseAdmin
     .from("event_users")
-    .select("id", { count: "exact", head: true })
+    .select(
+      `
+      id,
+      user_id,
+      user:users (
+        id,
+        first_name,
+        last_name
+      )
+    `,
+    )
     .eq("event_id", eventId);
 
   const submittedCount = usersWithAvailability?.length ?? 0;
-  const joinedCount = totalJoined ?? submittedCount;
+  const joinedCount = allEventUsers?.length ?? submittedCount;
   const ghostCount = joinedCount - submittedCount;
 
   return (
@@ -98,10 +117,10 @@ export default async function EventDashboardPage({
                 without adding availability
               </p>
               <p className="text-xs text-muted-foreground font-main leading-relaxed">
-                Since this app doesn&apos;t require an account, anyone who
-                closed the tab after joining won&apos;t be able to come back and
-                add their times. If this was accidental, they can re-join using
-                the event link. Otherwise, you can remove them from the event to
+                Since SyncUp doesn&apos;t require an account, anyone who closed
+                the tab after joining won&apos;t be able to come back and add
+                their times. If this was accidental, they can re-join using the
+                event link. Otherwise, you can remove them from the event to
                 keep results accurate.
               </p>
             </div>
@@ -137,6 +156,62 @@ export default async function EventDashboardPage({
           eventSlots={eventSlots ?? []}
           usersWithAvailability={usersWithAvailability ?? []}
         />
+      </section>
+
+      {/* Guest List Section */}
+      <section className="flex flex-col gap-3 mt-4">
+        <div className="flex items-center gap-2">
+          <Users className="size-4 text-primary" />
+          <h2 className="text-sm font-semibold font-main text-foreground">
+            Attendees
+          </h2>
+        </div>
+        <Card className="shadow-none py-0 border-border overflow-hidden">
+          <CardContent className="p-0">
+            <ul className="divide-y divide-border">
+              {allEventUsers?.map((eu) => {
+                const userObj = Array.isArray(eu.user) ? eu.user[0] : eu.user;
+                if (!userObj) return null;
+                const hasSubmitted = usersWithAvailability?.some(
+                  (u) => u.id === userObj.id,
+                );
+
+                return (
+                  <li
+                    key={eu.id}
+                    className="flex items-center justify-between p-4 flex-col sm:flex-row gap-4 transition-colors hover:bg-muted/30"
+                  >
+                    <div className="flex flex-col text-center sm:text-left">
+                      <span className="font-medium font-main text-foreground">
+                        {userObj.first_name} {userObj.last_name}
+                      </span>
+                      {hasSubmitted ? (
+                        <Badge variant="default">Added availability</Badge>
+                      ) : (
+                        <Badge variant="destructive">
+                          <CircleAlert /> Has not added availability
+                        </Badge>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0 w-full sm:w-auto h-8 px-3"
+                    >
+                      <Trash2 className="size-3.5 mr-1.5" />
+                      Remove
+                    </Button>
+                  </li>
+                );
+              })}
+              {(!allEventUsers || allEventUsers.length === 0) && (
+                <li className="p-8 text-center text-sm font-main text-muted-foreground">
+                  No guests have joined yet.
+                </li>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );
