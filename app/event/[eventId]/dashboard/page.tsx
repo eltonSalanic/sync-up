@@ -11,6 +11,7 @@ import {
   Trash2,
   Users,
   CircleAlert,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -181,14 +182,17 @@ export default async function EventDashboardPage({
                     key={eu.id}
                     className="flex items-center justify-between p-4 flex-col sm:flex-row gap-4 transition-colors hover:bg-muted/30"
                   >
-                    <div className="flex flex-col text-center sm:text-left">
+                    <div className="flex flex-col text-left">
                       <span className="font-medium font-main text-foreground">
                         {userObj.first_name} {userObj.last_name}
                       </span>
                       {hasSubmitted ? (
-                        <Badge variant="default">Added availability</Badge>
+                        <Badge className="bg-chart-4">
+                          <CheckCircle />
+                          Added availability
+                        </Badge>
                       ) : (
-                        <Badge variant="destructive">
+                        <Badge className="bg-destructive/80">
                           <CircleAlert /> Has not added availability
                         </Badge>
                       )}
