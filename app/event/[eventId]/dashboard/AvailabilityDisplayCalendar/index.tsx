@@ -6,7 +6,7 @@ import DayNavigation from "./DayNavigation";
 import EventSlotsRow from "./EventSlotsRow";
 import UserRow from "./UserRow";
 import TimelineRow from "./TimelineRow";
-import { SLOTS_PER_HOUR, PX_PER_COL, toDateKey } from "./utils";
+import { SLOTS_PER_HOUR, PX_PER_COL, toDateKey, getMidnightMs } from "./utils";
 
 /*
   -- 5 Min Grids --
@@ -18,53 +18,38 @@ import { SLOTS_PER_HOUR, PX_PER_COL, toDateKey } from "./utils";
 interface AvailabilityDisplayCalendarProps {
   usersWithAvailability: UsersWithAvailability;
   eventSlots: EventSlots;
+  adminTimezone: string;
 }
 
 export default function AvailabilityDisplayCalendar({
   usersWithAvailability,
   eventSlots,
+  adminTimezone,
 }: AvailabilityDisplayCalendarProps) {
-  const firstUser = usersWithAvailability[1];
-  const timeSlots = firstUser?.timeSlot ?? [];
-  /* TODO: Remove this console log */
-  console.log("Individual Local Times");
-  timeSlots.forEach((slot, i) => {
-    console.log(
-      `Slot ${i}: `,
-      new Date(slot.start_time).getHours() +
-        ":" +
-        new Date(slot.start_time).getMinutes(),
-      new Date(slot.end_time).getHours() +
-        ":" +
-        new Date(slot.end_time).getMinutes(),
-    );
-  });
-
   // Gets all unique days for navigation to cycle through
   const uniqueDays = useMemo(() => {
     const dates = new Set(
-      eventSlots.map((slot) => toDateKey(new Date(slot.start_time))),
+      eventSlots.map((slot) => toDateKey(slot.start_time, adminTimezone)),
     );
     return [...dates].sort();
-  }, [eventSlots]);
+  }, [eventSlots, adminTimezone]);
 
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const activeDay = uniqueDays[activeDayIndex]; // e.g. "2026-03-28"
 
-  // Midnight (start of day) of the active day in local time (ms)
+  // Midnight (start of day) of the active day in the admin's timezone (ms)
   const activeMidnight = useMemo(() => {
     if (!activeDay) return 0;
-    const [year, month, day] = activeDay.split("-").map(Number);
-    return new Date(year, month - 1, day).getTime();
-  }, [activeDay]);
+    return getMidnightMs(activeDay, adminTimezone);
+  }, [activeDay, adminTimezone]);
 
   // Get events that start on the active day
   const activeDayEventSlots = useMemo(
     () =>
       eventSlots.filter(
-        (slot) => toDateKey(new Date(slot.start_time)) === activeDay,
+        (slot) => toDateKey(slot.start_time, adminTimezone) === activeDay,
       ),
-    [eventSlots, activeDay],
+    [eventSlots, activeDay, adminTimezone],
   );
 
   // Total hours to display for the active day
@@ -88,10 +73,10 @@ export default function AvailabilityDisplayCalendar({
       usersWithAvailability.map((user) => ({
         ...user,
         timeSlot: user.timeSlot.filter(
-          (slot) => toDateKey(new Date(slot.start_time)) === activeDay,
+          (slot) => toDateKey(slot.start_time, adminTimezone) === activeDay,
         ),
       })),
-    [usersWithAvailability, activeDay],
+    [usersWithAvailability, activeDay, adminTimezone],
   );
 
   if (uniqueDays.length === 0) return null;

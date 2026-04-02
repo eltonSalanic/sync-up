@@ -54,6 +54,7 @@ export function generateTimeOptions(
     hour12: true,
     timeZone: timezone,
   });
+  // Safe since you are supplying UTC, browser will not use local time
   let cursor = new Date(startIso);
   const end = new Date(endIso);
   while (cursor <= end) {

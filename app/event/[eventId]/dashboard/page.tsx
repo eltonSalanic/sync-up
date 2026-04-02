@@ -25,10 +25,10 @@ export default async function EventDashboardPage({
   const { eventId } = await params;
   const supabaseAdmin = createAdminClient();
 
-  // 1. Fetch Event Info (with PIN to check access)
+  // 1. Fetch Event Info (with PIN to check access) + admin's timezone
   const { data: event, error: eventError } = await supabaseAdmin
     .from("events")
-    .select("id, name, description, pin")
+    .select("id, name, description, pin, creator:users!events_creator_user_id_fkey(timezone)")
     .eq("id", eventId)
     .single();
 
@@ -94,6 +94,9 @@ export default async function EventDashboardPage({
     )
     .eq("event_id", eventId);
 
+  const creator = Array.isArray(event.creator) ? event.creator[0] : event.creator;
+  const adminTimezone: string = creator?.timezone ?? "UTC";
+
   const submittedCount = usersWithAvailability?.length ?? 0;
   const joinedCount = allEventUsers?.length ?? submittedCount;
   const ghostCount = joinedCount - submittedCount;
@@ -150,6 +153,7 @@ export default async function EventDashboardPage({
           <AvailabilityDisplayCalendar
             usersWithAvailability={usersWithAvailability}
             eventSlots={eventSlots ?? []}
+            adminTimezone={adminTimezone}
           />
         </div>
       </section>
@@ -165,6 +169,7 @@ export default async function EventDashboardPage({
         <ConsensusWindowPanel
           eventSlots={eventSlots ?? []}
           usersWithAvailability={usersWithAvailability ?? []}
+          adminTimezone={adminTimezone}
         />
       </section>
 

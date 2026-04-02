@@ -1,3 +1,5 @@
+import { utcToDateKey, dateKeyToMidnightMs } from "@/lib/time";
+
 // Number of 5-min slots per hour. If you change: update 60/min increment
 export const SLOTS_PER_HOUR = 12;
 
@@ -12,13 +14,20 @@ export function formatHour(hour: number): string {
   return h < 12 ? `${h} AM` : `${h - 12} PM`;
 }
 
-/** Returns the local date as a YYYY-MM-DD string */
-export function toDateKey(date: Date): string {
-  return (
-    `${date.getFullYear()}-` +
-    `${String(date.getMonth() + 1).padStart(2, "0")}-` +
-    `${String(date.getDate()).padStart(2, "0")}`
-  );
+/**
+ * Returns a "YYYY-MM-DD" key for a UTC ISO string, as seen in the given timezone.
+ * Replaces the old local-Date version.
+ */
+export function toDateKey(utcISO: string, timezone: string): string {
+  return utcToDateKey(utcISO, timezone);
+}
+
+/**
+ * Returns the epoch milliseconds of midnight (00:00:00) for a "YYYY-MM-DD" date key
+ * in the given timezone. Use as the grid origin for column calculations.
+ */
+export function getMidnightMs(dateKey: string, timezone: string): number {
+  return dateKeyToMidnightMs(dateKey, timezone);
 }
 
 /**

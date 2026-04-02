@@ -4,9 +4,10 @@ import WindowItem from "./WindowItem";
 interface WindowListProps {
   windows: ConsensusWindow[];
   minDuration: number;
+  adminTimezone: string;
 }
 
-export default function WindowList({ windows, minDuration }: WindowListProps) {
+export default function WindowList({ windows, minDuration, adminTimezone }: WindowListProps) {
   if (windows.length === 0) {
     return (
       <p className="text-sm text-destructive text-center font-main py-1">
@@ -19,7 +20,7 @@ export default function WindowList({ windows, minDuration }: WindowListProps) {
   return (
     <div className="flex flex-col gap-2">
       {windows.map((window, i) => (
-        <WindowItem key={i} window={window} />
+        <WindowItem key={i} window={window} adminTimezone={adminTimezone} />
       ))}
     </div>
   );
