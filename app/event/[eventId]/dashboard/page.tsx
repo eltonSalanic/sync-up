@@ -209,7 +209,7 @@ export default async function EventDashboardPage({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0 w-full sm:w-auto h-8 px-3"
+                      className="text-destructive hover:bg-destructive hover:text-secondary shrink-0 w-full sm:w-auto h-8 px-3"
                     >
                       <Trash2 className="size-3.5 mr-1.5" />
                       Remove
