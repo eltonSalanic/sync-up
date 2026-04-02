@@ -46,7 +46,10 @@ export default async function CreateAnonUserPage({
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Get Started</h1>
         <p className="text-muted-foreground text-lg">
-          Add your name and timezone — you&apos;ll be the host of the event.
+          Add your name and timezone — you&apos;ll be the host of the event
+        </p>
+        <p className="text-muted-foreground text-lg">
+          The results will be displayed in your local timezone.
         </p>
       </div>
       <AnonUserForm />
