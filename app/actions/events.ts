@@ -1,21 +1,24 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ActionResult } from "../types/ActionResult";
 import { CreateEventSchema } from "../dtos/event.dto";
 import { Tables } from "@/database.types";
+import { localToUTC } from "@/lib/time";
 
-/** Combines a Date and an "HH:MM" string into a full ISO 8601 timestamp */
-function toISO(date: Date, time: string): string {
-  const [hours, minutes] = time.split(":");
-  const dt = new Date(date);
-  dt.setHours(Number(hours), Number(minutes), 0, 0);
-  return dt.toISOString();
-}
-
+/**
+ * Creates a new event in the database. Should recieve date/times in users local time. This is currently the only
+ * server action that performs conversions.
+ *
+ * @param {unknown} formData - The form data containing the event details.
+ * @returns {Promise<ActionResult<Tables<"events">>>} - A promise resolving to an ActionResult containing the created event or an error message.
+ */
 export async function createEvent(
   formData: unknown,
 ): Promise<ActionResult<Tables<"events">>> {
+  const supabaseAdmin = createAdminClient();
+
   const validationResult = CreateEventSchema.safeParse(formData);
 
   if (!validationResult.success) {
@@ -39,6 +42,15 @@ export async function createEvent(
     };
   }
 
+  // Fetch admin's IANA timezone so event slot times are stored as correct UTC
+  const { data: userProfile } = await supabaseAdmin
+    .from("users")
+    .select("timezone")
+    .eq("id", user.id)
+    .single();
+
+  const adminTimezone = userProfile?.timezone ?? "UTC";
+
   // 1. Insert the event
   const { data: newEvent, error: eventError } = await supabase
     .from("events")
@@ -59,11 +71,11 @@ export async function createEvent(
     };
   }
 
-  // 2. Batch insert all event days
+  // 2. Batch insert all event days, converting local → UTC using admin's timezone
   const days = event.availableDatesWithTimes.map((d) => ({
     event_id: newEvent.id,
-    start_time: toISO(d.date, d.startTime),
-    end_time: toISO(d.date, d.endTime),
+    start_time: localToUTC(d.date, d.startTime, adminTimezone),
+    end_time: localToUTC(d.date, d.endTime, adminTimezone),
   }));
 
   const { error: daysError } = await supabase.from("event_days").insert(days);
