@@ -9,11 +9,13 @@ import { findConsensusWindows, slotDurationMins } from "./utils";
 interface ConsensusWindowPanelProps {
   eventSlots: EventSlots;
   usersWithAvailability: UsersWithAvailability;
+  adminTimezone: string;
 }
 
 export default function ConsensusWindowPanel({
   eventSlots,
   usersWithAvailability,
+  adminTimezone,
 }: ConsensusWindowPanelProps) {
   // Derive slider bounds from event slot durations
   const { defaultDuration, maxDuration } = useMemo(() => {
@@ -60,7 +62,7 @@ export default function ConsensusWindowPanel({
         onChange={setMinDuration}
       />
 
-      <WindowList windows={consensusWindows} minDuration={minDuration} />
+      <WindowList windows={consensusWindows} minDuration={minDuration} adminTimezone={adminTimezone} />
     </div>
   );
 }
