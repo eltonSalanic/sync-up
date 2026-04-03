@@ -1,7 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
+import {
+  useForm,
+  useFieldArray,
+  SubmitHandler,
+  Controller,
+} from "react-hook-form";
 import { CreateEventSchema, CreateEventDTO } from "@/app/dtos/event.dto";
 import { useState } from "react";
 import { createEvent } from "@/app/actions/events";
@@ -24,7 +29,31 @@ import {
   FieldDescription,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
+/** Generates "HH:MM" time options every 30 minutes over 24 hours */
+function generateTimeSlots(): { value: string; label: string }[] {
+  const slots: { value: string; label: string }[] = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      const value = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+      const period = h < 12 ? "AM" : "PM";
+      const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
+      const label = `${hour}:${String(m).padStart(2, "0")} ${period}`;
+      slots.push({ value, label });
+    }
+  }
+  return slots;
+}
+
+const TIME_SLOTS = generateTimeSlots();
 
 export default function EventDetailsForm() {
   const router = useRouter();
@@ -157,71 +186,122 @@ export default function EventDetailsForm() {
             {/* Date and Time Select */}
             <Field>
               <FieldLabel>Select Dates</FieldLabel>
-              <div className="flex items-center md:flex-row h-[400px]">
-                <div className="flex-1 min-w-0 md:w-auto">
+              <div className="flex flex-col gap-6 xl:flex-row md:items-start">
+                {/* Calendar */}
+                <div className="shrink-0 self-start w-full md:w-auto">
                   <Calendar
                     mode="multiple"
                     required={false}
                     selected={selectedDates}
                     onSelect={handleSelectDate}
-                    className="rounded-lg border shrink-0 p-2 sm:p-4 [--cell-size:1.75rem] sm:[--cell-size:2.25rem] md:[--cell-size:2.5rem]"
+                    className="rounded-lg border w-full p-2 sm:p-4 [--cell-size:1.75rem] sm:[--cell-size:2.25rem] md:[--cell-size:2.5rem]"
                   />
                 </div>
-                <div className="flex-1 flex flex-col max-h-full overflow-y-scroll gap-3">
-                  {fields.map((field, index) => (
-                    <div
-                      key={field.id}
-                      className="flex items-center text-center gap-6 rounded-lg border bg-muted/30 px-4 py-3"
-                    >
-                      <p className="text-sm font-medium text-foreground">
-                        {field.date.toLocaleDateString(undefined, {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </p>
-                      <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1.5">
-                            <FieldLabel className="text-xs">Start</FieldLabel>
-                            <Input
-                              type="time"
-                              className="w-full"
-                              {...register(
-                                `availableDatesWithTimes.${index}.startTime`,
+
+                {/* Time slots */}
+                {fields.length > 0 && (
+                  <div className="flex flex-col gap-3 w-full min-w-0">
+                    {fields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="rounded-lg border bg-muted/30 px-4 py-3 space-y-3"
+                      >
+                        {/* Date heading */}
+                        <p className="text-sm font-semibold text-foreground">
+                          {field.date.toLocaleDateString(undefined, {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </p>
+
+                        {/* Time inputs + Apply All */}
+                        <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+                          <div className="grid grid-cols-2 gap-3 flex-1">
+                            <div className="space-y-1.5">
+                              <FieldLabel className="text-xs">Start</FieldLabel>
+                              <Controller
+                                control={control}
+                                name={`availableDatesWithTimes.${index}.startTime`}
+                                render={({ field }) => (
+                                  <Select
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Start" />
+                                    </SelectTrigger>
+                                    <SelectContent
+                                      position="popper"
+                                      className="max-h-48 overflow-y-auto"
+                                    >
+                                      {TIME_SLOTS.map((slot) => (
+                                        <SelectItem
+                                          key={slot.value}
+                                          value={slot.value}
+                                        >
+                                          {slot.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                )}
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <FieldLabel className="text-xs">End</FieldLabel>
+                              <Controller
+                                control={control}
+                                name={`availableDatesWithTimes.${index}.endTime`}
+                                render={({ field }) => (
+                                  <Select
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="End" />
+                                    </SelectTrigger>
+                                    <SelectContent
+                                      position="popper"
+                                      className="max-h-48 overflow-y-auto"
+                                    >
+                                      {TIME_SLOTS.map((slot) => (
+                                        <SelectItem
+                                          key={slot.value}
+                                          value={slot.value}
+                                        >
+                                          {slot.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                )}
+                              />
+                              {errors.availableDatesWithTimes?.[index]
+                                ?.endTime && (
+                                <FieldError>
+                                  {
+                                    errors.availableDatesWithTimes?.[index]
+                                      ?.endTime?.message
+                                  }
+                                </FieldError>
                               )}
-                            />
+                            </div>
                           </div>
-                          <div className="space-y-1.5">
-                            <FieldLabel className="text-xs">End</FieldLabel>
-                            <Input
-                              type="time"
-                              className="w-full"
-                              {...register(
-                                `availableDatesWithTimes.${index}.endTime`,
-                              )}
-                            />
-                            {errors.availableDatesWithTimes?.[index]
-                              ?.endTime && (
-                              <FieldError>
-                                {
-                                  errors.availableDatesWithTimes?.[index]
-                                    ?.endTime?.message
-                                }
-                              </FieldError>
-                            )}
-                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="w-full sm:w-auto shrink-0"
+                            onClick={() => handleApplyAllTimes(index)}
+                          >
+                            Apply All
+                          </Button>
                         </div>
-                        <Button
-                          type="button"
-                          onClick={() => handleApplyAllTimes(index)}
-                        >
-                          Apply All
-                        </Button>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </Field>
             <Field>
