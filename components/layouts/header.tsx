@@ -11,8 +11,8 @@ export function Header() {
           href="/"
           className="flex items-center gap-2 text-xl font-semibold transition-opacity hover:opacity-80 font-poppins"
         >
-          <Image src="/syncUpLogo.png" alt="SyncUp logo" width={28} height={28} />
-          <span>SyncUp</span>
+          <Image src="/syncUpLogo.png" alt="Are You Free logo" width={28} height={28} />
+          <span>Are You Free</span>
         </Link>
 
         <div className="flex items-center gap-3">

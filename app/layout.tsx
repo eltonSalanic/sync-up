@@ -24,8 +24,9 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sync Up",
-  description: "Easily coordinate plans with anyone",
+  title: "Are You Free",
+  description:
+    "Stop the group-chat ping-pong. Find when everyone's free — areyoufree.xyz",
 };
 
 export default function RootLayout({

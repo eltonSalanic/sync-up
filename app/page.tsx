@@ -11,7 +11,7 @@ import { SuccessBanner } from "@/components/SuccessBanner";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen bg-background text-foreground flex flex-col items-center overflow-hidden relative">
+    <div className="relative min-h-screen bg-background text-foreground flex flex-col items-center overflow-hidden">
       <Suspense fallback={null}>
         <SuccessBanner />
       </Suspense>
@@ -31,7 +31,7 @@ export default function Home() {
         </div>
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold font-main tracking-tight leading-[1.1] max-w-4xl text-balance">
-          The easiest way to find everyone's{" "}
+          The easiest way to find everyone&apos;s{" "}
           <span className="text-primary relative inline-block">
             availability
             <svg
@@ -50,7 +50,7 @@ export default function Home() {
         </h1>
 
         <p className="text-xl md:text-2xl text-muted-foreground font-secondary max-w-2xl mt-4 leading-relaxed">
-          Stop the back-and-forth messaging. Sync-up is the fastest way to
+          Stop the back-and-forth messaging. Are You Free is the fastest way to
           schedule meetings, dinners, and events with your group.
         </p>
 
