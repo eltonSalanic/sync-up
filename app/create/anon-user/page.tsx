@@ -14,12 +14,30 @@ export default async function CreateAnonUserPage({
     const supabase = await createClient();
     const { data: event, error } = await supabase
       .from("events")
-      .select("id, name")
+      .select("id, name, maxMembers, event_users(id)")
       .eq("id", eventId)
       .single();
 
     if (error || !event) {
       notFound();
+    }
+
+    const memberCount = event.event_users?.length ?? 0;
+    const isFull = event.maxMembers !== null && memberCount >= event.maxMembers;
+
+
+    // Will still allow overflow of users if an extra user joined at the same time as the final user. Not to important as
+    // admin can always delete user
+    if (isFull) {
+      return (
+        <div className="w-full flex-1 flex flex-col items-center justify-center p-8 gap-4 max-w-xl mx-auto text-center">
+          <h1 className="text-3xl font-bold tracking-tight">Event Full</h1>
+          <p className="text-muted-foreground text-lg">
+            <span className="font-semibold text-foreground">{event.name}</span>{" "}
+            has reached its maximum number of members.
+          </p>
+        </div>
+      );
     }
 
     return (
