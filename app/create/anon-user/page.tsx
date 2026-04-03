@@ -11,7 +11,6 @@ export default async function CreateAnonUserPage({
 
   // Guest joining via share link
   if (eventId) {
-    console.log("Event ID: ", eventId);
     const supabase = await createClient();
     const { data: event, error } = await supabase
       .from("events")
@@ -20,15 +19,14 @@ export default async function CreateAnonUserPage({
       .single();
 
     if (error || !event) {
-      console.log("Cannot find event with id: ", eventId);
-      return <p>Cannot find event with id: {eventId}</p>;
+      notFound();
     }
 
     return (
       <div className="w-full flex-1 flex flex-col items-center justify-center p-8 gap-6 max-w-xl mx-auto">
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">
-            You&apos;re Invited! 🎉
+            You&apos;re Invited!
           </h1>
           <p className="text-muted-foreground text-lg">
             Enter your details to join{" "}
@@ -43,13 +41,10 @@ export default async function CreateAnonUserPage({
   // Host creating their account
   return (
     <div className="w-full flex-1 flex flex-col items-center justify-center p-8 gap-6 max-w-xl mx-auto">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">Get Started</h1>
         <p className="text-muted-foreground text-lg">
-          Add your name and timezone — you&apos;ll be the host of the event
-        </p>
-        <p className="text-muted-foreground text-lg">
-          The results will be displayed in your local timezone.
+          Add your name and timezone — results will display in your local time.
         </p>
       </div>
       <AnonUserForm />

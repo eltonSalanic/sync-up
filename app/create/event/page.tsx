@@ -1,15 +1,14 @@
 import EventDetailsForm from "./EventDetailsForm";
-import { createClient } from "@/lib/supabase/server";
 
 export default async function CreateEventPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-secondary-foreground text-center">Create Event</h1>
+    <div className="flex flex-col gap-6">
+      <div className="text-center space-y-1">
+        <h1 className="text-3xl font-bold tracking-tight">Create Event</h1>
+        <p className="text-muted-foreground text-lg">
+          Fill in your event details below.
+        </p>
+      </div>
       <EventDetailsForm />
     </div>
   );
