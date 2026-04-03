@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import PinForm from "./PinForm";
+import RemoveUserButton from "./RemoveUserButton";
 import AvailabilityDisplayCalendar from "./AvailabilityDisplayCalendar";
 import ConsensusWindowPanel from "./ConsensusWindow";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,12 +10,10 @@ import {
   Calendar,
   Clock,
   Info,
-  Trash2,
   Users,
   CircleAlert,
   CheckCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default async function EventDashboardPage({
@@ -211,14 +210,11 @@ export default async function EventDashboardPage({
                         </Badge>
                       )}
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-destructive hover:bg-destructive hover:text-secondary shrink-0 w-full sm:w-auto h-8 px-3"
-                    >
-                      <Trash2 className="size-3.5 mr-1.5" />
-                      Remove
-                    </Button>
+                    <RemoveUserButton
+                      eventId={eventId}
+                      eventUserId={eu.id}
+                      userName={`${userObj.first_name} ${userObj.last_name}`}
+                    />
                   </li>
                 );
               })}
