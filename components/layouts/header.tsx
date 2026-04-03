@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -11,7 +11,7 @@ export function Header() {
           href="/"
           className="flex items-center gap-2 text-xl font-semibold transition-opacity hover:opacity-80 font-poppins"
         >
-          <Calendar className="size-6" />
+          <Image src="/syncUpLogo.png" alt="SyncUp logo" width={28} height={28} />
           <span>SyncUp</span>
         </Link>
 
