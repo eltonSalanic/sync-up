@@ -1,6 +1,28 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import AnonUserForm from "./AnonUserForm";
+import { Metadata } from "next";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}): Promise<Metadata> {
+  const supabaseAdmin = createAdminClient();
+  console.log("--------------------------------");
+  console.log("params", await searchParams);
+  const eventId = (await searchParams).eventId as string;
+  const data = await supabaseAdmin
+    .from("events")
+    .select("name")
+    .eq("id", eventId);
+  const eventName = data.data?.[0]?.name || "an event";
+
+  return {
+    title: `You have been invited to ${eventName}. Join to enter your availability!`,
+  };
+}
 
 export default async function CreateAnonUserPage({
   searchParams,
