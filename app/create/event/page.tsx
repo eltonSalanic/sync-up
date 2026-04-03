@@ -8,8 +8,8 @@ export default async function CreateEventPage() {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="">
-      <p>Add in your event details here</p>
+    <div className="flex flex-col gap-4">
+      <h1 className="text-secondary-foreground text-center">Create Event</h1>
       <EventDetailsForm />
     </div>
   );
