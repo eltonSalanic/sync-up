@@ -133,10 +133,10 @@ export default async function EventDashboardPage({
                 without adding availability
               </p>
               <p className="text-xs text-muted-foreground font-main leading-relaxed">
-                Since Are You Free doesn&apos;t require an account, anyone who closed
-                the tab after joining won&apos;t be able to come back and add
-                their times. If this was accidental, they can re-join using the
-                event link. Otherwise, you can remove them from the event to
+                Since Are You Free doesn&apos;t require an account, anyone who
+                closed the tab after joining won&apos;t be able to come back and
+                add their times. If this was accidental, they can re-join using
+                the event link. Otherwise, you can remove them from the event to
                 keep results accurate.
               </p>
             </div>
