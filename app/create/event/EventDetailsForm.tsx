@@ -307,8 +307,8 @@ export default function EventDetailsForm() {
             <Field>
               <FieldLabel>Pin</FieldLabel>
               <FieldDescription>
-                4 digit pin for your event. This will be used to see event info
-                after creation. Don&apos;t forget it!
+                Create a 4 digit pin for your event. This will be used to see
+                event info after creation. Don&apos;t forget it!
               </FieldDescription>
               <Input
                 {...register("pin")}
