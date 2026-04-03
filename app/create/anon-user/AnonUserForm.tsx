@@ -78,7 +78,7 @@ export default function AnonUserForm({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Your Info</CardTitle>
+        <CardTitle>{isGuest ? "Your Details" : "Get Started"}</CardTitle>
         {isGuest && eventName && (
           <CardDescription>
             Joining{" "}
@@ -90,7 +90,7 @@ export default function AnonUserForm({
         <form>
           <FieldGroup>
             {serverError && (
-              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-4">
+              <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-md text-sm">
                 {serverError}
               </div>
             )}
