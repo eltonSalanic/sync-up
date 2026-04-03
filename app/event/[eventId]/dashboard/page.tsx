@@ -27,7 +27,9 @@ export default async function EventDashboardPage({
   // 1. Fetch Event Info (with PIN to check access) + admin's timezone
   const { data: event, error: eventError } = await supabaseAdmin
     .from("events")
-    .select("id, name, description, pin, creator:users!events_creator_user_id_fkey(timezone)")
+    .select(
+      "id, name, description, pin, creator:users!events_creator_user_id_fkey(timezone)",
+    )
     .eq("id", eventId)
     .single();
 
@@ -93,7 +95,9 @@ export default async function EventDashboardPage({
     )
     .eq("event_id", eventId);
 
-  const creator = Array.isArray(event.creator) ? event.creator[0] : event.creator;
+  const creator = Array.isArray(event.creator)
+    ? event.creator[0]
+    : event.creator;
   const adminTimezone: string = creator?.timezone ?? "UTC";
 
   const submittedCount = usersWithAvailability?.length ?? 0;

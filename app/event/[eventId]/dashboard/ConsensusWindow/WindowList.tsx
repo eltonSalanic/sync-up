@@ -7,7 +7,11 @@ interface WindowListProps {
   adminTimezone: string;
 }
 
-export default function WindowList({ windows, minDuration, adminTimezone }: WindowListProps) {
+export default function WindowList({
+  windows,
+  minDuration,
+  adminTimezone,
+}: WindowListProps) {
   if (windows.length === 0) {
     return (
       <p className="text-sm text-destructive text-center font-main py-1">

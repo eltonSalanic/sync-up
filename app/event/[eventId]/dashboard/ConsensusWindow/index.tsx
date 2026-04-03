@@ -62,7 +62,11 @@ export default function ConsensusWindowPanel({
         onChange={setMinDuration}
       />
 
-      <WindowList windows={consensusWindows} minDuration={minDuration} adminTimezone={adminTimezone} />
+      <WindowList
+        windows={consensusWindows}
+        minDuration={minDuration}
+        adminTimezone={adminTimezone}
+      />
     </div>
   );
 }

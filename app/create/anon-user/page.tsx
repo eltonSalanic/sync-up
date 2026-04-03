@@ -25,7 +25,6 @@ export default async function CreateAnonUserPage({
     const memberCount = event.event_users?.length ?? 0;
     const isFull = event.maxMembers !== null && memberCount >= event.maxMembers;
 
-
     // Will still allow overflow of users if an extra user joined at the same time as the final user. Not to important as
     // admin can always delete user
     if (isFull) {
