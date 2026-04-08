@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Are You Free
 
-## Getting Started
+_The name "Sync Up" was changed to Are You Free since sync up was taken :/_
 
-First, run the development server:
+## Application Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```mermaid
+flowchart TB
+
+    subgraph Client ["Client (Browser)"]
+    end
+
+    subgraph Server ["Next.js App"]
+        subgraph ServerActions ["Server Actions"]
+        end
+    end
+
+    subgraph DB ["Supabase"]
+        Postgres[(PostgreSQL)]
+        RLS["Row Level Security"]
+        RLS --- Postgres
+    end
+
+    %% Flows
+    Client --> ServerActions
+    Client -->|"AnonUser Credentials"| DB
+
+    ServerActions -->|"AdminKey/AnonUser Credentials"| DB
+
+
+    %% Styles
+    classDef clientNode fill:#e0f2fe,stroke:#0284c7,color:#0f172a
+    classDef serverNode fill:#f3f4f6,stroke:#374151,color:#0f172a
+    classDef dbNode fill:#dcfce7,stroke:#16a34a,color:#0f172a
+
+    class Client clientNode
+    class Server serverNode
+    class DB dbNode
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Application Flows
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Create Event Flow
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant Browser as Client (Browser)
+    participant Server as Next.js (Server Actions)
+    participant DB as Supabase
 
-## Learn More
+    %% PHASE 1: Anonymous User Creation
+    User->>Browser: Navigates to /create/anon-user
+    User->>Browser: Fills out AnonUser form & submits
 
-To learn more about Next.js, take a look at the following resources:
+    Browser->>Server: Action: createAnonUser()
+    activate Server
+    Server->>DB: SignUp Anon User
+    Server->>DB: INSERT new anonymous user
+    DB ->>Server: Anon User logged in
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    %% PHASE 2: Redirect to Event Creation
+    Server-->>Browser: redirect('/create/event')
+    deactivate Server
+    Browser->>User: Renders Event Creation Form
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    %% PHASE 3: Event Creation & Admin Assignment
+    User->>Browser: Fills out Event form & submits
+    Browser->>Server: Action: createEvent()
+    activate Server
 
-## Deploy on Vercel
+    Server->>DB: INSERT new Event (Link Anon User to Event as Event)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    DB-->>Server: Returns new Event ID
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    %% PHASE 4: Final Redirect
+    Server-->>Browser: redirect('/create/event/[eventId]/success')
+    deactivate Server
+    Browser->>User: Renders Success / Admin Dashboard
+```
