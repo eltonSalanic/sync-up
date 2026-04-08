@@ -10,7 +10,7 @@ export default async function EventSuccessPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/create/anon-user/${eventId}`;
+  const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/create/anon-user?eventId=${eventId}`;
   const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/event/${eventId}/dashboard`;
 
   return (
