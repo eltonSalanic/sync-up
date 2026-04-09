@@ -116,3 +116,43 @@ sequenceDiagram
     deactivate Server
     Browser->>User: Renders Landing Page (Success Banner)
 ```
+
+### User View Dashboard Flow
+
+```mermaid
+    sequenceDiagram
+    autonumber
+    actor User
+
+    %% PHASE 1: Initial Navigation
+    User->>Browser: Navigates to /event/[eventId]/dashboard
+    Browser->>Server: GET Request
+
+    activate Server
+    Server->>Server: Check for HTTP-only Auth Cookie
+
+    %% PHASE 2: The Conditional Auth Check
+    alt Cookie is Missing or Invalid
+        Server-->>Browser: Renders PIN Entry Form
+        deactivate Server
+
+        User->>Browser: Enters event PIN and submits
+        Browser->>Server: Action: verifyPin()
+        activate Server
+        Server->>Supabase: Validate PIN matches Event ID
+        Supabase-->>Server: Verified
+        Server->>Server: Set Auth Cookie
+        Server-->>Browser: Refresh Page (revalidatePath)
+        deactivate Server
+
+        Browser->>Server: GET Request (Now with valid Cookie)
+        activate Server
+    end
+
+    %% PHASE 3: Dashboard Rendering (Only runs if Authorized)
+    Server->>Supabase: Fetch Event Details & Availabilities
+    Server-->>Browser: Render Full Dashboard
+    deactivate Server
+
+    Browser->>User: Renders dashboard
+```
