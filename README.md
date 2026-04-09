@@ -79,3 +79,40 @@ sequenceDiagram
     deactivate Server
     Browser->>User: Renders Success / Admin Dashboard
 ```
+
+### User Join Event Flow
+
+```mermaid
+    sequenceDiagram
+    autonumber
+    actor User
+
+
+    %% PHASE 1: Join via Invite Link
+    User->>Browser: Clicks link /create/anon-user?eventId=
+    Browser->>User: Renders Create AnonUser form
+
+    %% PHASE 2: Anonymous User Creation & Event Linking
+    User->>Browser: Fills out name & submits
+    Browser->>Server: Action: createAnonUser(eventId)
+    activate Server
+    Server->>DB: SignUp & INSERT new Anon User
+    Server->>DB: Link Anon User to Event
+    DB-->>Server: Anon User created & logged in
+
+    %% PHASE 3: Redirect to Availability Selection
+    Server-->>Browser: redirect('/event/[eventId]/availability')
+    Browser-->>User: render availability form
+    deactivate Server
+
+    %% PHASE 4: Submitting Availability
+    User->>Browser: Selects available times & submits
+    Browser->>Server: Action: submitAvailability(slots)
+    activate Server
+    Server->>DB: INSERT availability slots linked to user and event
+
+    %% PHASE 5: Redirect to Confirmation
+    Server-->>Browser: redirect('/?success=true')
+    deactivate Server
+    Browser->>User: Renders Landing Page (Success Banner)
+```
