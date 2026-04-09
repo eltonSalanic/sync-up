@@ -12,11 +12,22 @@ Live Project: [www.areyoufree.xyz](https://areyoufree.xyz)
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/sync-up.git
+git clone https://github.com/eltonSalanic/sync-up.git
 cd sync-up
 ```
 
-### 2. Set up Environment Variables
+### 2. Supabase Database Setup
+
+To get your own database running, you can completely skip the CLI.
+
+1. Create a new project on your [Supabase Dashboard](https://supabase.com/dashboard).
+2. Navigate to the **SQL Editor** on the left panel.
+3. Copy the entire contents of the `initial_schema.sql` file included in this repository.
+4. Paste it into the SQL Editor and click **Run**.
+
+_(This will instantly generate all the necessary tables, relationships, Row Level Security policies, and user constraints required for the app to work!)_
+
+### 3. Set up Environment Variables
 
 Before running the app, you need to connect it to your Supabase project.
 
@@ -28,12 +39,12 @@ Before running the app, you need to connect it to your Supabase project.
 
 2. Open `.env.local` and add your **Supabase URL**, **Publishable Key**, and **Secret Key**. You can find these in your Supabase project settings.
 
-### 3. Install Dependencies
+### 4. Install Dependencies
 
 This project uses `pnpm` as its package manager.
 `pnpm install`
 
-### 4. Run the Development Server
+### 5. Run the Development Server
 
 Start the local Next.js server:
 `pnpm dev`
@@ -75,6 +86,10 @@ flowchart TB
     class Server serverNode
     class DB dbNode
 ```
+
+## Database ERD
+
+![Database Schema ERD](./initialDbSchema.png)
 
 ## Application Flows
 
