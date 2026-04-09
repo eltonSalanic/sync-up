@@ -1,6 +1,44 @@
 # Are You Free
 
-_The name "Sync Up" was changed to Are You Free since sync up was taken :/_
+The easiest way to find a time that works for everyone in your group.
+Simply create an event, share the link with your friends, and let everyone pick their available times. The app will automatically find the best times that work for everyone.
+
+_The name "Sync Up" was changed to Are You Free since "Sync Up" was taken :/_
+
+Live Project: [www.areyoufree.xyz](https://areyoufree.xyz)
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/yourusername/sync-up.git
+cd sync-up
+```
+
+### 2. Set up Environment Variables
+
+Before running the app, you need to connect it to your Supabase project.
+
+1. Copy the example environment file:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Open `.env.local` and add your **Supabase URL**, **Publishable Key**, and **Secret Key**. You can find these in your Supabase project settings.
+
+### 3. Install Dependencies
+
+This project uses `pnpm` as its package manager.
+`pnpm install`
+
+### 4. Run the Development Server
+
+Start the local Next.js server:
+`pnpm dev`
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the app running!
 
 ## Application Architecture
 
