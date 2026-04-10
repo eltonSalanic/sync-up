@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Link2, TriangleAlert } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default async function EventSuccessPage({
-  params,
-}: {
-  params: Promise<{ eventId: string }>;
-}) {
-  const { eventId } = await params;
+export default async function EventSuccessPage(
+  props: PageProps<"/create/event/[eventId]/success">,
+) {
+  const { eventId } = await props.params;
   const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/create/anon-user?eventId=${eventId}`;
   const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/event/${eventId}/dashboard`;
 

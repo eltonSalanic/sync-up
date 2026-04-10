@@ -2,12 +2,10 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AvailabilityForm from "./AvailabilityForm";
 
-export default async function AvailabilityPage({
-  params,
-}: {
-  params: Promise<{ eventId: string }>;
-}) {
-  const { eventId } = await params;
+export default async function AvailabilityPage(
+  props: PageProps<"/event/[eventId]/availability">,
+) {
+  const { eventId } = await props.params;
   const supabase = await createClient();
 
   // Must be signed in (anon or full user)

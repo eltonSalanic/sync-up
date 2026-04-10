@@ -16,12 +16,10 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-export default async function EventDashboardPage({
-  params,
-}: {
-  params: Promise<{ eventId: string }>;
-}) {
-  const { eventId } = await params;
+export default async function EventDashboardPage(
+  props: PageProps<"/event/[eventId]/dashboard">,
+) {
+  const { eventId } = await props.params;
   const supabaseAdmin = createAdminClient();
 
   // 1. Fetch Event Info (with PIN to check access) + admin's timezone
