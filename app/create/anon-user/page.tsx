@@ -10,8 +10,6 @@ export async function generateMetadata({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
   const supabaseAdmin = createAdminClient();
-  console.log("--------------------------------");
-  console.log("params", await searchParams);
   const eventId = (await searchParams).eventId as string;
   const data = await supabaseAdmin
     .from("events")

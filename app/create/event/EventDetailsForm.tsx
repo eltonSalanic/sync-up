@@ -83,7 +83,6 @@ export default function EventDetailsForm() {
       setServerError(result.error ?? "An unexpected error occurred");
       return;
     }
-    console.log("Event created:", result.data);
     router.push(`/create/event/${result.data.id}/success`);
   };
 

@@ -38,8 +38,6 @@ export default function PinForm({
     router.refresh();
   }
 
-  console.log("Error: ", error);
-
   return (
     <div className="w-full flex-1 flex flex-col items-center justify-center p-8 max-w-lg mx-auto min-h-[60vh]">
       <Card className="w-full border-border bg-card/60 backdrop-blur-sm shadow-sm">
